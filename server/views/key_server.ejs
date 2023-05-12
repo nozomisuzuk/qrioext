@@ -121,7 +121,7 @@
         console.log(e.data);
         if(e.data == "message:esp32ok"){
           var now = new Date();
-          text0.innerHTML = "esp32 is connecting!!";
+          text0.innerHTML = "WS (sp-98) is alive!!";
           text1.innerHTML = now.getMonth()+1 + "月" + now.getDate() + "日" + now.getHours() + "時" + now.getMinutes() + "分" + now.getSeconds() + "秒";
         }
         else if(e.data == "message:esp32:unlock"){
@@ -134,7 +134,7 @@
           text1.innerHTML = " ";
         }
         else if(e.data == "websocket_connect"){
-          text0.innerHTML = " Websocket connect ! ! ";
+          text0.innerHTML = " WS (sp-98) is alive!! ";
           text1.innerHTML = " ";
         }
     });
