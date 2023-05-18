@@ -53,6 +53,9 @@ router.post("/", (req, res,next)=>{
     if(req.body.next == "next"){
         res.redirect("/url_token");
     }
+    if(req.body.next == "list"){
+        res.redirect("/list_users");
+    }
 });
 
 
