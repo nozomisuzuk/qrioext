@@ -68,7 +68,7 @@ app.get('/key_server', function(req, res) {
 wss.on('connection', function(ws, req) {
     console.log(ws._socket.remoteAddress);
     console.log(decodeURIComponent(req.headers.cookie));
-    if(ws._socket.remoteAddress != "::ffff:192.168.2.91"){
+    if(ws._socket.remoteAddress != "::ffff:192.168.2.97"){
         if(!req.headers.cookie){
             ws.send("Bye")
             ws.close()
