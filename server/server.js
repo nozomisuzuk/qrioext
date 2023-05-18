@@ -14,6 +14,7 @@ const PORT = 3000;
 const create_url = require('./routes/create_url');
 const url_token = require('./routes/url_token');
 const register_user = require('./routes/register_user');
+const list_users = require('./routes/list_users');
 
 var CLIENTS=[]; // クライアントのリスト
 var id;
@@ -28,6 +29,8 @@ app.use('/CreateUrl',create_url);
 app.use('/url_token',url_token);
 //register and give usr-token (status =0)
 app.use('/register_user',register_user);
+//list
+app.use('/list_users',list_users);
 
 app.set("view engine","ejs");
 
