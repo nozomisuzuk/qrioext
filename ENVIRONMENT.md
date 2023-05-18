@@ -45,7 +45,7 @@
 - show global variables like"%timeout%";
 
 ### 5.serverの自動起動設定（systemd）
-- sudo vi /etc/systemd/bmc_lock.service
+- sudo vi /etc/systemd/system/bmc_lock.service
 ```
 [Unit]
 Description=Server operating qrio key
