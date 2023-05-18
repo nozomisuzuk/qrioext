@@ -117,4 +117,5 @@ void setup() {
 
 void loop() {
     client.poll();
+    delay(100);
 }
