@@ -1,121 +1,159 @@
-#include <ArduinoWebsockets.h>
+/*
+ * WebSocketClient.ino
+ *
+ *  Created on: 24.05.2015
+ *
+ */
+
+#include <Arduino.h>
+
 #include <WiFi.h>
+//#include <WiFiMulti.h>
+#include <WiFiClientSecure.h>
 
-const char* ssid            = "ssid15";
-const char* password        = "oic15oic15";
+#include <WebSocketsClient.h>
+
+
+//WiFiMulti WiFiMulti;
+WebSocketsClient webSocket;
+
+#define USE_SERIAL Serial
+
+#define SSID "ssid15"
+#define password "oic15oic15"
+#define ws "192.168.2.98"
+//#define ws "192.168.2.184"
 const IPAddress ip(192,168,2,97);
+//const IPAddress ip(192,168,2,110);
 const IPAddress subnet(255,255,255,0);
-
-//void collectHeaders()
-
-const char* websockets_connection_string = "ws://192.168.2.98:3000/"; //Enter server adress
 
 #define LED_SWITCH      26
 //#define LED_SWITCH_lock 27
 #define Check_LED       17
 
-using namespace websockets;
+unsigned long previousMillis = 0;
+unsigned long interval = 30000;
 
-WebsocketsClient client;
+void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
+  //char* st;
+  String myString;
+	switch(type) {
+		case WStype_DISCONNECTED:
+			USE_SERIAL.printf("[WSc] Disconnected!\n");
+			break;
+		case WStype_CONNECTED:
+			USE_SERIAL.printf("[WSc] Connected to url: %s\n", payload);
 
-void onMessageCallback(WebsocketsMessage message) {
-    Serial.print("Got Message: ");
-    Serial.println(message.data());
+			// send message to server when Connected
+			webSocket.sendTXT("Hello Server");
+			break;
+		case WStype_TEXT:
+			USE_SERIAL.printf("[WSc] get text: %s\n", payload);
+      //st = (char *) payload;
+      myString = String((char *) payload);
+      
+      if(myString == "message:on"){
+        Serial.println("unlock");
+        digitalWrite(LED_SWITCH, HIGH);
+        delay(150);
+        digitalWrite(LED_SWITCH, LOW);
+        webSocket.sendTXT("esp32:unlock");
+      }   
+//      else if(myString == "message:off"){
+//      　digitalWrite(LED_SWITCH_lock, HIGH);
+//      　delay(150);
+//      　digitalWrite(LED_SWITCH_lock, LOW);
+//    　} 
+      else if(myString == "message:state-check"){
+        webSocket.sendTXT("esp32ok");
+      }
+			break;
+		case WStype_BIN:
+		case WStype_ERROR:			
+		case WStype_FRAGMENT_TEXT_START:
+		case WStype_FRAGMENT_BIN_START:
+		case WStype_FRAGMENT:
+		case WStype_FRAGMENT_FIN:
+			break;
+	}
 
-    String myString = String(message.data());
-
-    if(myString == "message:on"){
-      Serial.println("unlock");
-      digitalWrite(LED_SWITCH, HIGH);
-      delay(150);
-      digitalWrite(LED_SWITCH, LOW);
-      client.send("esp32:unlock");
-    }
-//    else if(myString == "message:off"){
-//      digitalWrite(LED_SWITCH_lock, HIGH);
-//      delay(150);
-//      digitalWrite(LED_SWITCH_lock, LOW);
-//    }
-    else if(myString == "message:state-check"){
-      client.send("esp32ok");
-    }
-    else{
-      digitalWrite(LED_SWITCH, LOW);
-      digitalWrite(LED_SWITCH_lock, LOW);
-      Serial.println("LOW now");
-    }
-}
-
-void onEventsCallback(WebsocketsEvent event, String data) {
-    if(event == WebsocketsEvent::ConnectionOpened) {
-        Serial.println("Connnection Opened");
-    } else if(event == WebsocketsEvent::ConnectionClosed) {
-        Serial.println("Connnection Closed");
-        ESP.restart();
-    } else if(event == WebsocketsEvent::GotPing) {
-        Serial.println("Got a Ping!");
-    } else if(event == WebsocketsEvent::GotPong) {
-        Serial.println("Got a Pong!");
-    }
 }
 
 void setup() {
-    Serial.begin(115200);
-    pinMode(LED_SWITCH, OUTPUT);
+	USE_SERIAL.begin(115200);
+ 
+     pinMode(LED_SWITCH, OUTPUT);
 //    pinMode(LED_SWITCH_lock, OUTPUT);
     pinMode(Check_LED,  OUTPUT);
     digitalWrite(Check_LED, HIGH);
     delay(100);
     digitalWrite(Check_LED, LOW);
 
-    if (!WiFi.config(ip,ip,subnet)){
-     Serial.println("Failed to configure!");
+	//Serial.setDebugOutput(true);
+	USE_SERIAL.setDebugOutput(true);
+
+	USE_SERIAL.println();
+	USE_SERIAL.println();
+	USE_SERIAL.println();
+
+	for(uint8_t t = 4; t > 0; t--) {
+		USE_SERIAL.printf("[SETUP] BOOT WAIT %d...\n", t);
+		USE_SERIAL.flush();
+		delay(1000);
+	}
+  
+  if (!WiFi.config(ip,ip,subnet)){
+    Serial.println("Failed to configure!");
+  }
+
+  WiFi.disconnect();
+//	WiFiMulti.addAP(SSID, password);
+  WiFi.begin(SSID,password);
+
+  int count=0;
+//	while(WiFiMulti.run() != WL_CONNECTED) {
+  while(WiFi.status() != WL_CONNECTED){
+    delay(1000);
+    Serial.println("Connecting to WiFi..");
+    count +=1;
+    if(count >5){
+      digitalWrite(Check_LED, HIGH);
+      delay(100);
+      digitalWrite(Check_LED, LOW);
+      ESP.restart();
     }
+	 }
+   
+  // Print ESP Local IP Address
+  Serial.println(WiFi.localIP());
 
-    // Connect to Wi-Fi
-    int count=0;
-    WiFi.begin(ssid, password);
-    while (WiFi.status() != WL_CONNECTED) {
-      delay(1000);
-      Serial.println("Connecting to WiFi..");
-      count +=1;
-      if(count >5){
-        digitalWrite(Check_LED, HIGH);
-        delay(100);
-        digitalWrite(Check_LED, LOW);
-        ESP.restart();
-      }
-    }
+	// server address, port and URL
+	webSocket.begin(ws, 3000, "/");
 
-    // Print ESP Local IP Address
-    Serial.println(WiFi.localIP());
+	// event handler
+	webSocket.onEvent(webSocketEvent);
 
-    // Connect to server
-    bool connected = client.connect(websockets_connection_string);
-    if(connected) {
-        Serial.println("Connected!");
-        client.send("Hello Server");
-   } else {
-        Serial.println("Not Connected!");
-        delay(5000);
-        digitalWrite(Check_LED, HIGH);
-        delay(100);
-        digitalWrite(Check_LED, LOW);
-        ESP.restart();
-    }
-
-    // Send a ping
-    client.ping();
-
-    // run callback when messages are received
-    client.onMessage(onMessageCallback);
-
-    // run callback when events are occuring
-    client.onEvent(onEventsCallback);
-
+	// try ever 5000 again if connection has failed
+	webSocket.setReconnectInterval(5000);
 }
 
 void loop() {
-    client.poll();
-    delay(100);
+  webSocket.loop();
+  
+  unsigned long currentMillis = millis();
+  // if WiFi is down, try reconnecting every CHECK_WIFI_TIME seconds
+  if ((WiFi.status() != WL_CONNECTED) && (currentMillis - previousMillis >=interval)) {
+    Serial.print(millis());
+    Serial.println("Reconnecting to WiFi...");
+    WiFi.disconnect();
+    WiFi.reconnect();
+//    WiFi.disconnect(false);
+//    WiFi.begin(SSID,password);
+    Serial.println(WiFi.localIP());
+    previousMillis = currentMillis;
+  }
+//  else if(WiFi.status() == WL_CONNECTED){
+//    Serial.println("connecting");
+//    delay(10000);
+//  }
 }
