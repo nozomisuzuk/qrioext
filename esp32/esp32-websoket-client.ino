@@ -52,7 +52,7 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
       //st = (char *) payload;
       myString = String((char *) payload);
       
-      if(myString == "message:on"){
+      if(myString == "message:do"){
         Serial.println("unlock");
         digitalWrite(LED_SWITCH, HIGH);
         delay(150);
@@ -147,13 +147,7 @@ void loop() {
     Serial.println("Reconnecting to WiFi...");
     WiFi.disconnect();
     WiFi.reconnect();
-//    WiFi.disconnect(false);
-//    WiFi.begin(SSID,password);
     Serial.println(WiFi.localIP());
     previousMillis = currentMillis;
   }
-//  else if(WiFi.status() == WL_CONNECTED){
-//    Serial.println("connecting");
-//    delay(10000);
-//  }
 }
