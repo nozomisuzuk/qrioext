@@ -20,6 +20,7 @@
     .topnav {
       overflow: hidden;
       background-color: #143642;
+      width: 100%;
     }
     body {
       background-color:#CDCDCD;
@@ -166,7 +167,7 @@
 </script>
 </head>
 
-<body>
+<body><meta name="viewport" content="user-scalable=no"/>
     <div class="topnav">
         <h1>Extension Qrio key</h1>
       </div>
@@ -174,12 +175,12 @@
         <p class="name">user: <%= Name %> </p>
       </div>
       <div class="switch">
-        <div class="circle">
+        <div class="circle" id="circle">
           <p><button id="button" class="button">Unlock</button></p> 
         </div>
       </div>
       <div class="content">
-        <div class="card">
+        <div class="card" id="card">
           <p><button id="state-check" class="state-check">esp32-state-check</button></p>   
         </div>
        </div>
@@ -187,4 +188,24 @@
         <h2 id="text0"></h2><h2 id="text1"></h2>
        </div>
 </body>
+<script>
+  const $button = document.getElementById("button");
+  const $statuscheck = document.getElementById("state-check");
+  const $circle = document.getElementById("circle");
+  const $card = document.getElementById("card");
+  const $text = document.getElementById("text0");
+  window.addEventListener("DOMContentLoaded",function(){
+    setInterval(() => {
+      if(sock.readyState != 1){
+        $button.style.visibility ="hidden";
+        $statuscheck.style.visibility ="hidden";
+        $circle.style.backgroundColor ="#CDCDCD";
+        $text.style.color="rgba(124, 11, 26, 0.726)";
+        $card.style.backgroundColor ="#CDCDCD"
+        text0.innerHTML = "ロードしてください";
+        text1.innerHTML = " ";
+      }
+    },4000);
+  });
+</script>
 </html>
