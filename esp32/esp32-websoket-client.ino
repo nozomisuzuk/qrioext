@@ -21,10 +21,8 @@ WebSocketsClient webSocket;
 
 #define SSID "ssid15"
 #define password "oic15oic15"
-#define ws "192.168.2.98"
-//#define ws "192.168.2.184"
-const IPAddress ip(192,168,2,97);
-//const IPAddress ip(192,168,2,110);
+#define ws "192.168.2.98"         //nucの固定ip
+const IPAddress ip(192,168,2,97); //esp32の固定ip
 const IPAddress subnet(255,255,255,0);
 
 #define LED_SWITCH      26
@@ -33,6 +31,7 @@ const IPAddress subnet(255,255,255,0);
 
 unsigned long previousMillis = 0;
 unsigned long interval = 30000;
+int count=0;
 
 void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
   //char* st;
@@ -40,8 +39,13 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
 	switch(type) {
 		case WStype_DISCONNECTED:
 			USE_SERIAL.printf("[WSc] Disconnected!\n");
+      count+=1;
+      if(count > 10){
+          ESP.restart();
+      }
 			break;
 		case WStype_CONNECTED:
+      count = 0;
 			USE_SERIAL.printf("[WSc] Connected to url: %s\n", payload);
 
 			// send message to server when Connected
@@ -148,6 +152,12 @@ void loop() {
     WiFi.disconnect();
     WiFi.reconnect();
     Serial.println(WiFi.localIP());
+    previousMillis = currentMillis;
+  }
+
+  //ping pong
+  if ((WiFi.status() == WL_CONNECTED) && (currentMillis - previousMillis >=interval)) {
+    webSocket.sendTXT("ping");
     previousMillis = currentMillis;
   }
 }
