@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const mysql = require("mysql");
 const con = require("./routes/mysql.js")
 const connection = con.con;
+require('date-utils')
 
 const app = express();
 const server = http.createServer(app);
@@ -17,7 +18,9 @@ const register_user = require('./routes/register_user');
 const list_users = require('./routes/list_users');
 
 var CLIENTS=[]; // クライアントのリスト
-var id;
+var User_cookie;
+var Token_cookie;
+var WS_User = 0;
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
@@ -32,11 +35,19 @@ app.use('/register_user',register_user);
 //list
 app.use('/list_users',list_users);
 
+
 app.set("view engine","ejs");
 
 server.listen(PORT, () => {
     console.log(`${new Date()} サーバ起動 http://localhost:${PORT}`)
 });
+
+function date(){
+    dt = new Date();
+    formatted = dt.toFormat("HH24時MI分SS秒 YYYY/MM/DD")
+
+    return formatted
+}
 
 app.get('/key_server', function(req, res) {
     if(req.cookies){
@@ -49,11 +60,11 @@ app.get('/key_server', function(req, res) {
 
     con.query("select * from users where username =? and token =? and status =1", [Name, Token], function(err, results){
         if(err){
-            console.log("unkown user login")
+            console.log("unkown user login - " + date())
             res.render('err',{})
         }
         else if(results == 0){
-            console.log("record err");
+            console.log("record err - " + date());
             res.render("key_server",{
                 Name: "unkown"
             });
@@ -69,24 +80,35 @@ app.get('/key_server', function(req, res) {
 
 // //websocket server
 wss.on('connection', function(ws, req) {
-    console.log(ws._socket.remoteAddress);
-    console.log(decodeURIComponent(req.headers.cookie));
-    if(ws._socket.remoteAddress != "::ffff:192.168.2.97"){
+    console.log(date() + " - " + ws._socket.remoteAddress);
+    //console.log(decodeURIComponent(req.headers.cookie));
+    ws.on('error', console.log);   
+    if(ws._socket.remoteAddress == "::ffff:192.168.2.97"){
+	WS_User = "esp32";
+	ws.id = WS_User;
+	CLIENTS.push(ws);
+	ws.send("websocket_connext");
+	console.log(date() + ' - 新しいクライアント::' + ws.id + " len=" + CLIENTS.length);
+    }else{
         if(!req.headers.cookie){
-            ws.send("Bye")
-            ws.close()
+            ws.send("Bye");
+            ws.close();
         }else{
         const cookie_name = decodeURIComponent(req.headers.cookie)+"; avoid=err; avoid=err;";
+	User_cookie = cookie_name.split("; ")[0].replace(";","").split("=")[1];
+	Token_cookie = cookie_name.split("; ")[1].replace(";","").split("=")[1];
         con.query("select * from users where username =? and token =? and status =1",
-                [cookie_name.split("; ")[0].replace(";","").split("=")[1], cookie_name.split("; ")[1].replace(";","").split("=")[1]], 
+		[User_cookie, Token_cookie],
                     function(err, results){
                     if(err){
                         console.log('err:' + err);
                         res.render('err',{})
                     }
                     else if(results == 0){
+			User_cookie = cookie_name.split("; ")[1].replace(";","").split("=")[1];
+			Token_cookie = cookie_name.split("; ")[0].replace(";","").split("=")[1];
                         con.query("select * from users where username =? and token =? and status =1",
-                        [cookie_name.split("; ")[1].replace(";","").split("=")[1], cookie_name.split("; ")[0].replace(";","").split("=")[1]], 
+			[User_cookie, Token_cookie],
                         function(err, results){
                             if(err){
                                 console.log('err:' + err);
@@ -94,31 +116,56 @@ wss.on('connection', function(ws, req) {
                             }
                             else if(results == 0){
                                 ws.send("Bye")
-                                console.log("token err")
+                                console.log("token err" + date())
                                 ws.close()
                             }
+			    else{
+				WS_User = User_cookie;
+				ws.id = WS_User;
+				    CLIENTS.push(ws);
+				    ws.send("websocket_connect");
+				    console.log(date() + ' - 新しいクライアント::' + ws.id + " len=" + CLIENTS.length);
+			    }	
                         })
                     }
-        })}
+		    else{
+			WS_User = User_cookie;
+			ws.id = WS_User;
+			CLIENTS.push(ws);
+			ws.send("websocket_connect");
+			console.log(date() + ' - 新しいクライアント::' + ws.id + " len=" + CLIENTS.length);
+		    }
+         })}
     }
 
-    id = Math.floor(Math.random() * 999999999);
-    console.log('新しいクライアント： ' + id);
-    CLIENTS.push(ws); //クライアントを登録
-    ws.send("websocket_connect");
-
     ws.on('message', function(message) {
-        console.log('received: %s', message);
         ws.send("self message : " + message);  // 自分自身にメッセージを返す
-
-        for (var j=0; j < CLIENTS.length; j++) {
-          //他の接続しているクライアントにメッセージを一斉送信
-            if(ws !== CLIENTS[j]) {CLIENTS[j].send("message:" + message);} 
-        }
+	if(message == 'ping'){
+		ws.send('pong');
+		if(ws.id == "esp32"){
+			clearTimeout(this.pingTimeout);
+			this.pingTimeout = setTimeout(() => {
+				ws.close();
+				console.log(date() + " - terminate:" + ws.id);
+			},30000 + 5000);
+		}
+	}else{
+		console.log(date() + '- received: %s', message);
+        	wss.clients.forEach(function (client) {
+	  		if(ws.readyState == 1){
+        	   		client.send('message:'+message);
+	  		}
+        	});
+	}
     });
 
-    ws.on('close', function() {
-        console.log('ユーザー：' + id + ' がブラウザを閉じました');
-        delete CLIENTS[id];
+    //切断時
+    ws.on('close', function () {
+        CLIENTS = CLIENTS.filter(function (conn) {
+	    if(conn === ws){
+            	console.log(date() + ' - ユーザー：' + conn.id + ' がブラウザを閉じました');
+	    }
+	    return (conn === ws) ? false : true;
+        });
     });
 });
