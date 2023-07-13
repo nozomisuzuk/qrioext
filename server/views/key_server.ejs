@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html>
-<head><meta charset="UTF-8" /><title>ESP Web Server</title></head>
+<head>
+	<meta charset="UTF-8" /><title>Key Server</title>
+	<meta http-equiv="Pragma" content="no-cache">
+</head>
 <style>
     html {
       font-family: Arial, Helvetica, sans-serif;
@@ -122,7 +125,7 @@
         console.log(e.data);
         if(e.data == "message:esp32ok"){
           var now = new Date();
-          text0.innerHTML = "WS (sp-98) is alive!!";
+          text0.innerHTML = "WS (98-esp32) is alive!!";
           text1.innerHTML = now.getMonth()+1 + "月" + now.getDate() + "日" + now.getHours() + "時" + now.getMinutes() + "分" + now.getSeconds() + "秒";
         }
         else if(e.data == "message:esp32:unlock"){
@@ -135,7 +138,7 @@
           text1.innerHTML = " ";
         }
         else if(e.data == "websocket_connect"){
-          text0.innerHTML = " WS (sp-98) is alive!! ";
+          text0.innerHTML = "WS (sp-98) is alive!!";
           text1.innerHTML = " ";
         }
     });
@@ -169,7 +172,7 @@
 
 <body><meta name="viewport" content="user-scalable=no"/>
     <div class="topnav">
-        <h1>Extension Qrio key</h1>
+        <h1>Qrio Ext.</h1>
       </div>
       <div class="information">
         <p class="name">user: <%= Name %> </p>
@@ -189,23 +192,36 @@
        </div>
 </body>
 <script>
+  let state = 0;
   const $button = document.getElementById("button");
   const $statuscheck = document.getElementById("state-check");
   const $circle = document.getElementById("circle");
   const $card = document.getElementById("card");
   const $text = document.getElementById("text0");
-  window.addEventListener("DOMContentLoaded",function(){
-    setInterval(() => {
-      if(sock.readyState != 1){
-        $button.style.visibility ="hidden";
-        $statuscheck.style.visibility ="hidden";
-        $circle.style.backgroundColor ="#CDCDCD";
-        $text.style.color="rgba(124, 11, 26, 0.726)";
-        $card.style.backgroundColor ="#CDCDCD"
-        text0.innerHTML = "ロードしてください";
-        text1.innerHTML = " ";
-      }
-    },4000);
+  window.addEventListener('DOMContentLoaded',function(){
+    let Interval2 = setInterval(() => {
+	let Interval1 = setInterval(() => {
+			if(state == 0){
+				$button.style.visibility ="hidden";
+				$statuscheck.style.visibility ="hidden";
+				$circle.style.backgroundColor ="#CDCDCD";
+				$text.style.color="rgba(124, 11, 26, 0.726)";
+				card.style.backgroundColor ="#CDCDCD"
+				text0.innerHTML = "ロードしてください";
+				text1.innerHTML = " ";
+			}
+		},500);
+	if(state == 1){
+			state =0;
+		}
+	sock.send('ping');
+	sock.addEventListener('message', function(e){
+			if(e.data == 'pong'){
+					state = 1;
+					clearInterval(Interval1);
+				}
+		});
+	},1000);
   });
 </script>
 </html>
