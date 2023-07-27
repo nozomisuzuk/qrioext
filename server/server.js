@@ -10,7 +10,7 @@ require('date-utils')
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
-const PORT = 3000;
+const PORT = 3030;
 
 const create_url = require('./routes/create_url');
 const url_token = require('./routes/url_token');
@@ -44,7 +44,7 @@ server.listen(PORT, () => {
 
 function date(){
     dt = new Date();
-    formatted = dt.toFormat("HH24時MI分SS秒 YYYY/MM/DD")
+    formatted = dt.toFormat("YYYY/MM/DD HH24:MI:SS")
 
     return formatted
 }
@@ -60,11 +60,11 @@ app.get('/key_server', function(req, res) {
 
     con.query("select * from users where username =? and token =? and status =1", [Name, Token], function(err, results){
         if(err){
-            console.log("unkown user login - " + date())
+            console.log(date() + "unkown user login - ")
             res.render('err',{})
         }
         else if(results == 0){
-            console.log("record err - " + date());
+            console.log(date() + "record err - ");
             res.render("key_server",{
                 Name: "unkown"
             });
@@ -73,6 +73,7 @@ app.get('/key_server', function(req, res) {
             res.render("key_server",{
                 Name: Name
             });
+	//	res.render("maintenance",{});
         }
     })
 });
@@ -83,7 +84,7 @@ wss.on('connection', function(ws, req) {
     console.log(date() + " - " + ws._socket.remoteAddress);
     //console.log(decodeURIComponent(req.headers.cookie));
     ws.on('error', console.log);   
-    if(ws._socket.remoteAddress == "::ffff:192.168.2.97"){
+    if(ws._socket.remoteAddress == "192.168.2.97"){
 	WS_User = "esp32";
 	ws.id = WS_User;
 	CLIENTS.push(ws);
@@ -139,15 +140,25 @@ wss.on('connection', function(ws, req) {
     }
 
     ws.on('message', function(message) {
+        //console.log('received: %s', message + "   - " + date());
         ws.send("self message : " + message);  // 自分自身にメッセージを返す
 	if(message == 'ping'){
 		ws.send('pong');
 		if(ws.id == "esp32"){
 			clearTimeout(this.pingTimeout);
 			this.pingTimeout = setTimeout(() => {
-				ws.close();
 				console.log(date() + " - terminate:" + ws.id);
+				ws.close();
+				CLIENTS = CLIENTS.filter(function (conn) {
+					return (conn == ws) ? false : true;
+				});
 			},30000 + 5000);
+		} else {
+			clearTimeout(this.pingClientTimeout);
+			this.pingClientTimeout = setTimeout(() => {
+				console.log(date() + " - terminate:" + ws.id);
+				ws.close();
+			}, 1000 + 1000);
 		}
 	}else{
 		console.log(date() + '- received: %s', message);
@@ -167,5 +178,9 @@ wss.on('connection', function(ws, req) {
 	    }
 	    return (conn === ws) ? false : true;
         });
+	console.log('connecting id:');
+	wss.clients.forEach(function each(client) {
+		console.log(client.id);
+	});
     });
 });
