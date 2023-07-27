@@ -3,6 +3,7 @@
 <head>
 	<meta charset="UTF-8" /><title>Key Server</title>
 	<meta http-equiv="Pragma" content="no-cache">
+	<meta name="viewport" content="user-scalable=no"/>
 </head>
 <style>
     html {
@@ -27,10 +28,10 @@
     }
     body {
       background-color:#CDCDCD;
-      margin: 0;
+      margin: 0 auto;
     }
     .switch {
-      padding: 10px 10px 30px;
+      padding: 1px 10px 30px;
     }
     .circle{
       padding: auto;
@@ -68,54 +69,77 @@
       -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     }
     .button:active {
-      background-color: rgba(124, 11, 26, 0.726);
+      background-color: rgba(134, 12, 28, 0.726);
       box-shadow: 2 2px #CDCDCD;
       transform: translateY(3px);
     }
     .information {
       margin: 0 auto;
-      padding: 20px 10px;
+      padding: 1px;
       width: 100%;
       height: 50px;
-      border-radius: 5%;
       text-align: center;
-      line-height: 100px;
+      line-height: 3em;
     }
     .name {
-      font-size: 3.0rem;
+      font-size: 3.5rem;
       color: #143642;
       font-weight: bold;
      }
     .content {
-      padding: 50px;
-      max-width: 600px;
+      padding: 30px 50px 40px;
+      max-width: 750px;
       margin: 0 auto;
     }
     .card {
-      background-color: #F8F7F9;;
+      background-color: #F8F7F9;
       box-shadow: 2px 2px 12px 1px rgba(140,140,140,.5);
-      padding-top:10px;
-      padding-bottom:20px;
+      padding: 10px 40px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
     }
-     .state-check{
-      padding: 15px 50px;
+    .close {
+      flex: 1;
+      border-radius: 5%;
+      width:320px;
+      height: 150px;
+      font-size: 100px;
+      text-align: center;
+      outline: none;
+      color: #ffff;
+      background-color: #0890c1;
+      border: none;
+      border-radius: 5px;
+    }
+    .close:active {
+      background-color: rgba(134, 12, 28, 0.726);
+      box-shadow:2 2px #CDCDCD;
+      transform: translateY(3px);
+    }
+    .state-check{
+      flex: 1;
+      border-radius: 5%;
+      width: 320px;
+      height: 150px;
       /* font-size: 24px; */
       font-size: 40px;
       text-align: center;
+      overflow-wrap: break-word;
       outline: none;
       color: #fff;
       background-color: #143642;
       border: none;
       border-radius: 5px;
-     }
-     .state-check:active{
+    }
+    .state-check:active{
       background-color: rgba(1, 0, 59, 0.726);
       box-shadow: 2 2px #CDCDCD;
       transform: translateY(3px);
-     }
+    }
 </style>
 <script type="text/javascript">
-    var sock = new WebSocket('ws://192.168.2.98:3000');
+    var sock = new WebSocket('ws://192.168.2.98:3030');
 
     sock.addEventListener('open',function(e){// 接続
         console.log('Socket 接続成功');
@@ -133,6 +157,11 @@
           text0.innerHTML = " Unlock!!";
           text1.innerHTML = now.getMonth()+1 + "月" + now.getDate() + "日" + now.getHours() + "時" + now.getMinutes() + "分" + now.getSeconds() + "秒";
         }
+	else if(e.data == "message:esp32:close"){
+	  var now = new Date();
+	  text0.innerHTML = "Close!!";
+	  text1.innerHTML = now.getMonth()+1 + "月" + now.getDate() + "日" + now.getHours() + "時" + now.getMinutes() + "分" + now.getSeconds() + "秒";
+	}
         else if(e.data == "message:Hello Server"){
           text0.innerHTML = " esp32 connected just now";
           text1.innerHTML = " ";
@@ -160,6 +189,11 @@
             counts = 5;
           }
         });
+	document.getElementById('close').addEventListener('click',function(e){
+	  text0.innerHTML = " ... " ;
+	  text1.innerHTML = " ";
+	  sock.send('off');
+	});
         document.getElementById('state-check').addEventListener('click',function(e){
           text0.innerHTML = " ... ";
           text1.innerHTML = " ";  
@@ -170,31 +204,33 @@
 </script>
 </head>
 
-<body><meta name="viewport" content="user-scalable=no"/>
+<body>
     <div class="topnav">
         <h1>Qrio Ext.</h1>
-      </div>
-      <div class="information">
-        <p class="name">user: <%= Name %> </p>
-      </div>
-      <div class="switch">
-        <div class="circle" id="circle">
+    </div>
+    <div class="information">
+      <p class="name">user: <%= Name %> </p>
+    </div>
+    <div class="switch">
+      <div class="circle" id="circle">
           <p><button id="button" class="button">Unlock</button></p> 
-        </div>
       </div>
-      <div class="content">
-        <div class="card" id="card">
-          <p><button id="state-check" class="state-check">esp32-state-check</button></p>   
-        </div>
-       </div>
-       <div>
-        <h2 id="text0"></h2><h2 id="text1"></h2>
-       </div>
+    </div>
+    <div class="content">
+      <div class="card" id="card">
+        <p><button id="state-check" class="state-check">esp32 state check</button></p>   
+        <p><button id="close" class="close">close</button></p>
+      </div>
+    </div>
+    <div>
+      <h2 id="text0"></h2><h2 id="text1"></h2>
+    </div>
 </body>
 <script>
   let state = 0;
   const $button = document.getElementById("button");
   const $statuscheck = document.getElementById("state-check");
+  const $close = document.getElementById("close");
   const $circle = document.getElementById("circle");
   const $card = document.getElementById("card");
   const $text = document.getElementById("text0");
@@ -204,9 +240,10 @@
 			if(state == 0){
 				$button.style.visibility ="hidden";
 				$statuscheck.style.visibility ="hidden";
+				$close.style.visibility = "hidden";
 				$circle.style.backgroundColor ="#CDCDCD";
 				$text.style.color="rgba(124, 11, 26, 0.726)";
-				card.style.backgroundColor ="#CDCDCD"
+				$card.style.backgroundColor ="#CDCDCD"
 				text0.innerHTML = "ロードしてください";
 				text1.innerHTML = " ";
 			}
