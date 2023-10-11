@@ -21,8 +21,8 @@ clientから送信するMessageと，正常系のserverからの返信の一覧
 | 送信 | 返答 |
 | ---- | ---- |
 | do | message:esp32:unlock |
-| off | messge:esp32:close |
-| state-check | messge:esp32ok |
+| off | message:esp32:close |
+| state-check | message:esp32ok |
 ## 4. jsonによってtokenをpostする
 192.168.2.98:3030/post_jsonにpostリクエストすることで，tokenがjsonファイルでpostされる
 ```
