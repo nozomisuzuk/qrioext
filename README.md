@@ -16,3 +16,20 @@
    - ejsファイル
 ### - server.js
    - Qrio Ext. を起動するjsファイル
+## 3. WebSocketの送受信Message
+clientから送信するMessageと，正常系のserverからの返信の一覧
+| 送信 | 返答 |
+| ---- | ---- |
+| do | message:esp32:unlock |
+| off | messge:esp32:close |
+| state-check | messge:esp32ok |
+## 4. jsonによってtokenをpostする
+192.168.2.98:3030/post_jsonにpostリクエストすることで，tokenがjsonファイルでpostされる
+```
+[postリクエスト]
+curl http://192.168.2.98:3030/post_json -d "name=${username}"
+```
+```
+[返答例]
+{"name":${username},"token":"1c***-e8b8***-4dbf-***eab-db671d***f"}
+```
