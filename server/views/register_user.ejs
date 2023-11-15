@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>token</title>
+</head>
+<style>
+    .username{
+        font-size: 3.0rem; 
+    }
+</style>
+<body>
+    <h1>Register and Token get</h1><br>
+    <p>登録名を入力してください。</p>
+    <p>※誰かわからない名前は今後、消される可能性があるので注意してください</p><br>
+    <form action "/login_token" method = "POST">
+        new_username:<input type="text" name="username" id="username"><br>
+        <input type="submit" name="register" value="register" required>
+    </form>
+    <p><%= coments %></p>
+</body>
+</html>

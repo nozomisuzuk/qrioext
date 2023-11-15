@@ -2,7 +2,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const router = express.Router();
 const mysql = require("mysql");
-const con = require(".//mysql.js")
+const con = require("./mysql.js")
 const connection = con.con;
 
 router.use(cookieParser());
@@ -88,7 +88,7 @@ router.post("/:id?", (req, res)=>{
                         if(err)console.log('err:' + err);
                         //go to key server
                         res.redirect('/key_server');
-                        console.log("update done")
+                        console.log("urlToken disabled.")
                     })
                 }else if(!includeJa(req.body.username)){
                     console.log("one more")
@@ -99,6 +99,45 @@ router.post("/:id?", (req, res)=>{
             }
         })
     }
+
+
+    if(req.body.name){
+	    con.query("select * from Url_token where url = ? and status =1"
+		    ,["http://192.168.2.98:3000/register_user/"+req.params.id],function(err, results){
+			    if(err){
+				    console.log('err:' + err);
+				    res.json({
+		                      	"state":"error"
+		              	    });
+		            }
+		            else if(results == 0){
+               			    console.log("record err");
+               			    res.json({
+                       			"state":"error:this url is already used."
+           			    });
+          		    }
+		            else{
+				const username = req.body.name;
+				const token = createUuid();
+				con.query("insert into users set ?",{
+                     			username:username,
+                       			token:token
+               		        });
+                		res.json({
+      	                		"name":username,
+               	        		"token":token
+              			});
+			        //update status = 0
+				con.query( "update Url_token set status =0 where url = ?",
+				     ["http://192.168.2.98:3000/register_user/" + req.params.id],function(err,results){
+				            if(err)console.log('err:' + err);
+				             console.log("urlToken disabled.")
+			        });
+			    }
+				                    
+    		});
+    }
+
 });
 
 
