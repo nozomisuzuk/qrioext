@@ -10,7 +10,7 @@ function md5hex(str){
     return md5.update(str, "binary").digest("hex")
 }
 
-const PASSWORD = md5hex("qriokey");
+const PASSWORD = md5hex("qrioext");
 
 router.get('/', (req, res)=>{
     res.render('administor',{

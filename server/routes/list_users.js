@@ -25,7 +25,7 @@ router.post('/', (req, res)=>{
     if(req.body.submit == "submit"){
         const password = md5hex(req.body.password);
         if( password == PASSWORD){
-            con.query("select * from users order by status DE    SC, id DESC",(err,results)=>{
+            con.query("select * from users order by status DESC, id DESC",(err,results)=>{
                 res.render("list_users",{
                     users: results
                 });
@@ -39,7 +39,6 @@ router.post('/', (req, res)=>{
     }
  
     function createUuid(){
- 
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace    (/[xy]/g, function(a) {
                 let r = (new Date().getTime() + Math.random()     * 16)%16 | 0, v = a == 'x' ? r : (r & 0x3 | 0x8);
                 return v.toString(16);
@@ -49,7 +48,7 @@ router.post('/', (req, res)=>{
 })
  
 router.get("/delete/:id?",(req, res)=>{
-    con.query("update users set status=0 where id = ?",[req.p    arams.id],(err,result)=>{
+    con.query("update users set status=0 where id = ?",[req.params.id],(err,result)=>{
         if(err) throw err;
         con.query("select * from users order by status DESC,     id DESC",(err,results)=>{
             if(err) throw err;
@@ -59,3 +58,5 @@ router.get("/delete/:id?",(req, res)=>{
         })
     })
 })
+
+module.exports = router;

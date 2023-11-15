@@ -29,8 +29,9 @@
 - ALTER USER 'keyserver'@'localhost' IDENTIFIED WITH mysql_native_password BY '23Y04M20D';
 - create database workspace;
 - use workspace;
-- create table users(id int auto_increment, username text not null, token text not null, status int default 1, primary key(id));
+- create table users(id int auto_increment, username text not null, token text not null, status int default 1, expiration_date datetime not null, primary key(id));
 - create table Url_token(id int auto_increment, url text not null, status int default 1, primary key(id));
+- create table password_auth(id int auto_increment, username text not null, password text not null, status int default 1, expiration_date datetime not null, primary key(id));
 
 ### 4.mysql タイムアウト設定
 - sudo vi /ect/mysql/my.cnf
