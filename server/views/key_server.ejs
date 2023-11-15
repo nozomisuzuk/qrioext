@@ -159,7 +159,7 @@
         }
 	else if(e.data == "message:esp32:close"){
 	  var now = new Date();
-	  text0.innerHTML = "Close!!";
+	  text0.innerHTML = "Lock!!";
 	  text1.innerHTML = now.getMonth()+1 + "月" + now.getDate() + "日" + now.getHours() + "時" + now.getMinutes() + "分" + now.getSeconds() + "秒";
 	}
         else if(e.data == "message:Hello Server"){
@@ -219,7 +219,7 @@
     <div class="content">
       <div class="card" id="card">
         <p><button id="state-check" class="state-check">esp32 state check</button></p>   
-        <p><button id="close" class="close">close</button></p>
+        <p><button id="close" class="close">Lock</button></p>
       </div>
     </div>
     <div>
