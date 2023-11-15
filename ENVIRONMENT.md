@@ -21,6 +21,7 @@
 - $ npm i cookie-parser
 - $ npm i crypto
 - $ npm i mysql
+- $ npm i date-utils
 
 ### 3.mysql settings
 - $ sudo mysql
