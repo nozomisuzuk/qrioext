@@ -16,6 +16,7 @@ const create_url = require('./routes/create_url');
 const url_token = require('./routes/url_token');
 const register_user = require('./routes/register_user');
 const list_users = require('./routes/list_users');
+const post_json = require('./routes/post_json');
 
 var CLIENTS=[]; // クライアントのリスト
 var User_cookie;
@@ -34,7 +35,8 @@ app.use('/url_token',url_token);
 app.use('/register_user',register_user);
 //list
 app.use('/list_users',list_users);
-
+//register user from android or ios
+app.use('/post_json', post_json);
 
 app.set("view engine","ejs");
 
@@ -139,9 +141,19 @@ wss.on('connection', function(ws, req) {
          })}
     }
 
+   // ws.id = WS_User;
+    //wss.clients.forEach(function each(client) {
+      //  console.log('Client.ID: ' + client.id);
+    //});
+    //console.log(date() + '- 新しいクライアント： ' + ws.id);
+    //CLIENTS.push(ws); //クライアントを登録
+    //ws.send("websocket_connect");
+    //console.log(CLIENTS.length)
+    //ws.id = 0;
+
     ws.on('message', function(message) {
         //console.log('received: %s', message + "   - " + date());
-        ws.send("self message : " + message);  // 自分自身にメッセージを返す
+        //ws.send("self message : " + message);  // 自分自身にメッセージを返す
 	if(message == 'ping'){
 		ws.send('pong');
 		if(ws.id == "esp32"){
@@ -168,6 +180,15 @@ wss.on('connection', function(ws, req) {
 	  		}
         	});
 	}
+    });
+
+
+    ws.on('ping', function(){
+	    clearTimeout(this.pingClientTimeout);
+            this.pingClientTimeout = setTimeout(() => {
+	              console.log(date() + " - terminate ping pong:" + ws.id);
+	              ws.close();
+	    }, 5000 + 1000);
     });
 
     //切断時
