@@ -29,8 +29,8 @@
                 <button onclick="updateDate('<%= user.id %>')" style="display: none;">更新</button> <!-- 更新ボタン -->
             </td>
 
-            <td><a href="/list_users/delete/<%= user.id %>">削除</a></td>
-            <td><a href="/list_users/restore/<%= user.id %>">復元</a></td>
+            <td><a href="/admin/list_users/delete/<%= user.id %>">削除</a></td>
+            <td><a href="/admin/list_users/restore/<%= user.id %>">復元</a></td>
         </tr>
         <% }); %>
       </table>

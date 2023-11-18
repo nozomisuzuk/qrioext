@@ -12,7 +12,7 @@ const router = express.Router()
 
 
 router.get('/', function(req, res, next) {
-    res.render('admin_temp');
+    res.render('create_user');
 });
 
 
@@ -33,7 +33,7 @@ router.post('/create', async function (req, res, next) {
         if (isCreated === false) {
             return Error400Body(res, 'user is not created')
         }
-        res.redirect('/admin_temp');
+        res.redirect('/admin/create_user');
         //return res.json({ name: name, password: password })
     } catch (e) {
         return Error400Body(res, e)
@@ -54,7 +54,7 @@ router.post('/activate', async function (req, res, next) {
         }
 
         //return res.json({name: userInfo.username, token: userInfo.token})
-        res.redirect('/admin_temp');
+        res.redirect('/admin/create_user');
     } catch (e) {
         console.log(e)
         return Error400Body(res, e)

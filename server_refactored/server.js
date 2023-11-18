@@ -40,9 +40,9 @@ app.use('/post_json', post_json);
 
 
 //indexページからとべるようにするところ
-app.use('/create_user', create_user);
-app.use('/list_users',list_users);
-app.use('/CreateUrl',create_url);
+app.use('/admin/create_user', create_user);
+app.use('/admin/list_users',list_users);
+app.use('/admin/CreateUrl',create_url);
 
 
 app.set("view engine","ejs");
@@ -58,14 +58,12 @@ function date(){
     return formatted
 }
 
-//indexページ
+
+
+//管理者ページ
 app.get('/admin', function(req, res) {
-    res.render('index',{})
+    res.render('admin_index',{})
 });
-
-
-
-
 
 
 //鍵開錠用のページ
