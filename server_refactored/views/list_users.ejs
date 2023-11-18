@@ -13,41 +13,43 @@
             <th>id</th>
             <th>name</th>
             <th>status</th>
-            <th>expiration date</th>
+            <th>expirationdate</th>
         </tr>
         <% users.forEach((user)=>{ %>
         <tr>
-            <td><%= user.id %></td>
-            <td><%= user.username %></td>
-            <td><%= user.status %></td>
-            <td>
-                <span id="dateDisplay_<%= user.id %>"></span> <!-- 表示される日付 -->
-                <input type="date" id="dateInput_<%= user.id %>" style="display: none;"> <!-- 隠れている日付入力欄 -->
-            </td>
-            <td>
-                <button onclick="editDate('<%= user.id %>')">編集</button> <!-- 編集ボタン -->
-                <button onclick="updateDate('<%= user.id %>')" style="display: none;">更新</button> <!-- 更新ボタン -->
-            </td>
+            <form action="/admin/list_users/update_expiration/<%= user.id %>" method="post">
+                <td><%= user.id %></td>
+                <td><%= user.username %></td>
+                <td><%= user.status %></td>
+                <td>
+                    <span id="dateDisplay_<%= user.id %>"><%= user.expiration_date %></span><!-- 表示される日付 -->
+                    <input type="date" id="dateInput_<%= user.id %>" name="newExpirationDate" style="display: none;"> <!-- 隠れている日付入力欄 -->
+                </td>
+                <td>
+                    <button type="button" onclick="editDate('<%= user.id %>')">編集</button>
+                    <button type="submit" style="display: none;">更新</button>
+                </td>
 
-            <td><a href="/admin/list_users/delete/<%= user.id %>">削除</a></td>
-            <td><a href="/admin/list_users/restore/<%= user.id %>">復元</a></td>
+                <td><a href="/admin/list_users/delete/<%= user.id %>">削除</a></td>
+                <td><a href="/admin/list_users/restore/<%= user.id %>">復元</a></td>
+            </form>
         </tr>
         <% }); %>
       </table>
 
     <script>
-        function setCurrentDate() {
-            var today = new Date().toISOString().split('T')[0];
-            document.querySelectorAll('span[id^="dateDisplay_"]').forEach(function(span) {
-                span.textContent = today;
-            });
-        }
-
         function editDate(userId) {
-            document.getElementById('dateDisplay_' + userId).style.display = 'none';
+            var displaySpan = document.getElementById('dateDisplay_' + userId);
             var dateInput = document.getElementById('dateInput_' + userId);
+
+            // 現在の日付を非表示に
+            displaySpan.style.display = 'none';
+
+            // 入力欄を表示し、現在の日付を設定
             dateInput.style.display = 'block';
-            dateInput.value = document.getElementById('dateDisplay_' + userId).textContent;
+            dateInput.value = displaySpan.textContent;
+
+            // 編集ボタンを非表示にし、更新ボタンを表示
             event.currentTarget.style.display = 'none';
             event.currentTarget.nextElementSibling.style.display = 'block';
         }
@@ -60,8 +62,6 @@
             event.currentTarget.style.display = 'none';
             event.currentTarget.previousElementSibling.style.display = 'block';
         }
-
-        window.onload = setCurrentDate;
     </script>
 </body>
 </html>

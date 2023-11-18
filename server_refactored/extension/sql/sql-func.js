@@ -192,7 +192,7 @@ exports.getAllUsers = async function () {
 }
 
 /**
- * @param {string} password
+ * @param {string} id
  * @returns {Promise<boolean>}
  */
 exports.deleteUser = async function (id) {
@@ -207,7 +207,7 @@ exports.deleteUser = async function (id) {
 }
 
 /**
- * @param {string} password
+ * @param {string} id
  * @returns {Promise<boolean>}
  */
 exports.restoreUser = async function (id) {
@@ -220,4 +220,23 @@ exports.restoreUser = async function (id) {
         return false
     }
 }
+
+/**
+ * @param {string} id
+ * @param {string} new_expiration_date
+ * @returns {Promise<boolean>}
+ */
+exports.updateExpirationDate = async function (id, new_expiration_date) {
+    try {
+        const queryText = 'update users set expiration_date=? where id = ?'
+        result = await queryWrapper(queryText, [new_expiration_date, id])
+        const rowsAffected = result ? result.affectedRows : 0;
+        return rowsAffected > 0;
+    } catch {
+        console.log(err)
+        return false
+    }
+}
+
+
 
