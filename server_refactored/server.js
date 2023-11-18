@@ -10,7 +10,7 @@ require('date-utils')
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
-const PORT = 3030;
+const PORT = 5300;
 
 //各種ルーター
 const create_url = require('./routes/create_url');
@@ -18,7 +18,7 @@ const url_token = require('./routes/url_token');
 const register_user = require('./routes/register_user');
 const list_users = require('./routes/list_users');
 const post_json = require('./routes/post_json');
-const admin_temp = require('./routes/admin_temp');
+const create_user = require('./routes/create_user');
 
 var CLIENTS=[]; // クライアントのリスト
 var User_cookie;
@@ -29,21 +29,18 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-//create url-token page
 
 //print url-token page
 app.use('/url_token',url_token);
 //register and give usr-token (status =0)
 app.use('/register_user',register_user);
-//list
-app.use('/list_users',list_users);
 
 app.use('/post_json', post_json);
 
 
 
 //indexページからとべるようにするところ
-app.use('/admin_temp', admin_temp);
+app.use('/create_user', create_user);
 app.use('/list_users',list_users);
 app.use('/CreateUrl',create_url);
 
@@ -60,6 +57,16 @@ function date(){
 
     return formatted
 }
+
+//indexページ
+app.get('/admin', function(req, res) {
+    res.render('index',{})
+});
+
+
+
+
+
 
 //鍵開錠用のページ
 app.get('/key_server', function(req, res) {

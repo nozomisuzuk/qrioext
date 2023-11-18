@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>api check</title>
+</head>
+<body>
+    <h1>/create</h1>
+    <form method="POST" action="/admin_temp/create">
+        <label for="name">Username:</label>
+        <input type="text" id="name" name="name" required>
+        <br>
+        <label for="password">Password (4 digits):</label>
+        <input type="password" id="password" name="password" pattern="\d{4}" title="Please enter a 4-digit number." required>
+        <br>
+        <label for="expiration">Expiration(minutes)</label>
+        <input type="number" min="1" value = "10" id="password" name="expiration"  title="Please enter minutes." required>
+        <br>
+        <button type="submit">create user</button>
+    </form>
+
+
+
+
+
+    <h1>/activate</h1>
+    <form method="POST" action="/admin_temp/activate">
+        <label for="password">Password:</label>
+        <input type="text" id="password" name="password" required>
+        <br>
+        <button type="submit">activate user</button>
+    </form>
+</body>
+</html>

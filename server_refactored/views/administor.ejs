@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administor</title>
+</head>
+<body>
+    <script>
+        function checkPassword(e) {
+            pass = document.getElementById("password");
+            if (e.checked) {
+                pass.setAttribute("type", "text");
+            } else {
+                pass.setAttribute("type", "password");
+            }
+        }
+        </script>
+        <h1>
+            MANAGEMENT SCREEN
+        </h1>
+        <p><%= coments %></p>
+            <form action "/CreateUrl" method = "POST">
+                password:<input type="password" id="password" name="password"/><input type="checkbox" onclick="checkPassword(this)" /><br>
+                <input type="submit" name="submit" value="submit" required>
+            </form>
+        
+</body>
+</html>
