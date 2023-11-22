@@ -12,6 +12,19 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 const PORT = 5300;
 
+
+//認証まわり
+const session = require('express-session');
+app.use(session({
+    secret: 'qrioext', // セキュリティのための秘密鍵
+    resave: false,
+    saveUninitialized: true,
+    cookie: { maxAge: 60 * 60 * 1000 } // クッキーの有効期限（例：1時間）
+}));
+
+
+
+
 //各種ルーター
 const create_url = require('./routes/create_url');
 const url_token = require('./routes/url_token');
@@ -31,18 +44,12 @@ app.use(cookieParser());
 
 
 //print url-token page
-app.use('/url_token',url_token);
-//register and give usr-token (status =0)
-app.use('/register_user',register_user);
-
-app.use('/post_json', post_json);
+app.use('/admin/url_token',url_token);
+app.use('admin/register_user',register_user);
 
 
 
-//indexページからとべるようにするところ
-app.use('/admin/create_user', create_user);
-app.use('/admin/list_users',list_users);
-app.use('/admin/CreateUrl',create_url);
+
 
 
 app.set("view engine","ejs");
@@ -61,9 +68,44 @@ function date(){
 
 
 //管理者ページ
+// ログインページのルーティング
+app.get('/admin/login', function(req, res) {
+    res.render('admin_login'); // ログインページのテンプレートを表示
+});
+
+// ログイン認証のルーティング
+app.post('/admin/login', function(req, res) {
+    const { password } = req.body;
+    if (password === 'qrioext') { 
+        req.session.authenticated = true;
+        res.redirect('/admin');
+    } else {
+        res.render('admin_login', { error: 'Invalid password' });
+    }
+});
+
+function requireAuth(req, res, next) {
+    if (req.session.authenticated) {
+        next(); // 認証済みの場合、次のミドルウェアへ
+    } else {
+        res.redirect('/admin/login'); // 認証されていない場合、ログインページへリダイレクト
+    }
+}
+
+// '/admin'以下のルートで認証を要求
+app.use('/admin', requireAuth);
+
+
 app.get('/admin', function(req, res) {
     res.render('admin_index',{})
 });
+
+//indexページからとべるようにするところ
+app.use('/admin/create_user', create_user);
+app.use('/admin/list_users',list_users);
+app.use('/admin/CreateUrl',create_url);
+
+
 
 
 //鍵開錠用のページ

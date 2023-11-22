@@ -1,42 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User list</title>
-</head>
-<body>
-    <h1>User list</h1>
-    <table>
-        <tr>
-            <th>id</th>
-            <th>name</th>
-            <th>status</th>
-            <th>expirationdate</th>
-        </tr>
-        <% users.forEach((user)=>{ %>
-        <tr>
-            <form action="/admin/list_users/update_expiration/<%= user.id %>" method="post">
-                <td><%= user.id %></td>
-                <td><%= user.username %></td>
-                <td><%= user.status %></td>
-                <td>
-                    <span id="dateDisplay_<%= user.id %>"><%= user.expiration_date %></span><!-- 表示される日付 -->
-                    <input type="date" id="dateInput_<%= user.id %>" name="newExpirationDate" style="display: none;"> <!-- 隠れている日付入力欄 -->
-                </td>
-                <td>
-                    <button type="button" onclick="editDate('<%= user.id %>')">編集</button>
-                    <button type="submit" style="display: none;">更新</button>
-                </td>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>User list</title>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            .date-input {
+                max-width: 200px; 
+            }
 
-                <td><a href="/admin/list_users/delete/<%= user.id %>">削除</a></td>
-                <td><a href="/admin/list_users/restore/<%= user.id %>">復元</a></td>
-            </form>
-        </tr>
-        <% }); %>
-      </table>
+            .date-display {
+                display: inline-block;
+                min-width: 120px; /* 適切な最小幅に設定 */
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1 class="text-center mt-4">User List</h1>
+            <table class="table table-bordered table-striped mt-4">
+                <thead>
+                    <tr>
+                        <th>id</th>
+                        <th>name</th>
+                        <th>status</th>
+                        <th>expiration date</th>
+                        <th>actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% users.forEach((user)=>{ %>
+                    <tr>
+                        <form action="/admin/list_users/update_expiration/<%= user.id %>" method="post">
+                            <td><%= user.id %></td>
+                            <td><%= user.username %></td>
+                            <td><%= user.status %></td>
+                            <td>
+                                <span id="dateDisplay_<%= user.id %>" class="date-display"><%= user.expiration_date %></span>
+                                <input type="date" id="dateInput_<%= user.id %>" name="newExpirationDate" class="form-control date-input" style="display: none;">
+                                <button type="button" class="btn btn-info btn-sm" onclick="editDate('<%= user.id %>')">Edit</button>
+                                <button type="submit" class="btn btn-success btn-sm" style="display: none;">Update</button>
+                            </td>
+                            <td>
+                                
+                                <a href="/admin/list_users/delete/<%= user.id %>" class="btn btn-danger btn-sm">Delete</a>
+                                <a href="/admin/list_users/restore/<%= user.id %>" class="btn btn-warning btn-sm">Restore</a>
+                            </td>
+                        </form>
+                    </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+            <div class="text-center">
+                <button onclick="location.href='/admin'" class="btn btn-secondary">Back</button>
+            </div>
+        </div>
 
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script>
         function editDate(userId) {
             var displaySpan = document.getElementById('dateDisplay_' + userId);

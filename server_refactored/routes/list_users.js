@@ -30,35 +30,20 @@ function formatDate(datetime) {
 
 const PASSWORD = md5hex("qrioext");
 
-router.get('/', (req, res)=>{
-    res.render('administor',{
-        coments: "パスワードを入力してください。"
-    })
-})
-
-router.post('/', async function(req, res, next) {
-    if(req.body.submit == "submit"){
-        const password = md5hex(req.body.password);
-        if( password == PASSWORD){
-            try {
-                const users = await getAllUsers()
-                users.forEach(user => {
-                    user.expiration_date = formatDate(user.expiration_date);
-                });
-                res.render("list_users",{
-                    users: users
-                });
-            } catch (err) {
-                console.log(err)
-            }
-
-        }else{
-            res.render('administor',{
-                coments: "パスワードが違います。"
-            })
-        }
+router.get('/', async function(req, res){
+    try {
+        const users = await getAllUsers()
+        users.forEach(user => {
+            user.expiration_date = formatDate(user.expiration_date);
+        });
+        res.render("list_users",{
+            users: users
+        });
+    } catch (err) {
+        console.log(err)
     }
 })
+
 
 router.get("/delete/:id?",async function(req, res, next){
     try {

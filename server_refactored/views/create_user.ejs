@@ -4,32 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>api check</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container {
+            padding-top: 20px;
+        }
+    </style>
+    <script>
+        window.onload = function() {
+            var messageElement = document.getElementById('successMessage');
+            if (messageElement) {
+                setTimeout(function() {
+                    messageElement.style.display = 'none';
+                }, 3000);
+            }
+        };
+    </script>
 </head>
 <body>
-    <h1>/create</h1>
-    <form method="POST" action="/admin/create_user/create">
-        <label for="name">Username:</label>
-        <input type="text" id="name" name="name" required>
-        <br>
-        <label for="password">Password (4 digits):</label>
-        <input type="password" id="password" name="password" pattern="\d{4}" title="Please enter a 4-digit number." required>
-        <br>
-        <label for="expiration">Expiration(minutes)</label>
-        <input type="number" min="1" value = "10" id="expiration" name="expiration"  title="Please enter minutes." required>
-        <br>
-        <button type="submit">create user</button>
-    </form>
+    <div class="container">
+        <% if (message) { %>
+            <div id="successMessage" class="alert alert-success"><%= message %></div>
+        <% } %>
+        <h1>/create</h1>
+        <form method="POST" action="/admin/create_user/create" class="mb-4">
+            <div class="form-group">
+                <label for="name">Username:</label>
+                <input type="text" id="name" name="name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password (4 digits):</label>
+                <input type="password" id="password" name="password" class="form-control" pattern="\d{4}" title="Please enter a 4-digit number." required>
+            </div>
+            <div class="form-group">
+                <label for="expiration">Expiration(minutes):</label>
+                <input type="number" id="expiration" name="expiration" class="form-control" min="1" value="10" title="Please enter minutes." required>
+            </div>
+            <button type="submit" class="btn btn-primary">Create User</button>
+        </form>
 
+        <h1>/activate</h1>
+        <form method="POST" action="/admin/create_user/activate" class="mb-4">
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="text" id="password" name="password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Activate User</button>
+        </form>
 
+        <button onclick="location.href='/admin'" class="btn btn-secondary">戻る</button>
+    </div>
 
-
-
-    <h1>/activate</h1>
-    <form method="POST" action="/admin/create_user/activate">
-        <label for="password">Password:</label>
-        <input type="text" id="password" name="password" required>
-        <br>
-        <button type="submit">activate user</button>
-    </form>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>

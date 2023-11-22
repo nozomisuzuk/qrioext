@@ -158,7 +158,7 @@ exports.disablePassword = async function (password) {
  */
 exports.checkUsablePassword = async function (password) {
     try {
-        const queryText = 'SELECT * From password_auth WHERE password = ? AND status = 1'
+        const queryText = 'SELECT * From password_auth WHERE password = ? AND status = 1 AND expiration_date > NOW()'
         result = await queryWrapper(queryText, [password])
 
         return result.length === 0;

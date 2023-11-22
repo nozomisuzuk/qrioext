@@ -12,7 +12,10 @@ const router = express.Router()
 
 
 router.get('/', function(req, res, next) {
-    res.render('create_user');
+    const message = req.query.message;
+
+    // メッセージがある場合はそれを使用し、ない場合は空のオブジェクトを渡す
+    res.render('create_user', { message: message || '' });
 });
 
 
@@ -33,7 +36,7 @@ router.post('/create', async function (req, res, next) {
         if (isCreated === false) {
             return Error400Body(res, 'user is not created')
         }
-        res.redirect('/admin/create_user');
+        res.redirect('/admin/create_user?message=User created successfully');
         //return res.json({ name: name, password: password })
     } catch (e) {
         return Error400Body(res, e)
@@ -54,7 +57,7 @@ router.post('/activate', async function (req, res, next) {
         }
 
         //return res.json({name: userInfo.username, token: userInfo.token})
-        res.redirect('/admin/create_user');
+        res.redirect('/admin/create_user?message=User activated successfully');
     } catch (e) {
         console.log(e)
         return Error400Body(res, e)
