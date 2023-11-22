@@ -4,6 +4,8 @@ const router = express.Router();
 const mysql = require("mysql");
 const con = require("./mysql.js")
 const connection = con.con;
+const server_path = 'http://localhost:5300/'
+//const server_path = 'http://192.168.2.98:3000'
 
 router.use(cookieParser());
 
@@ -25,10 +27,12 @@ function includeJa(str) {
     }
 }
 
+
+
 router.get('/:id?', (req, res)=>{
     console.log(req.params.id);
     const sqll = "select * from Url_token where url = ? and status =1";
-    con.query(sqll,["http://192.168.2.98:3000/register_user/"+req.params.id],function(err, results){
+    con.query(sqll,[server_path + "admin/register_user/"+req.params.id],function(err, results){
         if(err){
             console.log('err:' + err);
             res.render('err',{})
@@ -47,9 +51,14 @@ router.get('/:id?', (req, res)=>{
 })
 
 router.post("/:id?", (req, res)=>{
+    
+
+
     if(req.body.register == "register"){
         con.query("select * from Url_token where url = ? and status =1"
-                ,["http://192.168.2.98:3000/register_user/"+req.params.id],function(err, results){
+                ,[server_path + "admin/register_user/"+req.params.id],function(err, results){
+
+
             if(err){
                 console.log('err:' + err);
                 res.render('err',{})
@@ -70,6 +79,7 @@ router.post("/:id?", (req, res)=>{
                     });
         
                     const tokencook = createUuid();
+                    console.log("token",tokencook)
                     res.cookie("Token", tokencook,
                     {
                         expires:new Date(Date.now()+(86400000)*365),
@@ -84,7 +94,7 @@ router.post("/:id?", (req, res)=>{
         
                     //update status = 0
                     con.query( "update Url_token set status =0 where url = ?",
-                        ["http://192.168.2.98:3000/register_user/" + req.params.id],function(err,results){
+                        [ server_path + "admin/register_user/" + req.params.id],function(err,results){
                         if(err)console.log('err:' + err);
                         //go to key server
                         res.redirect('/key_server');
@@ -103,7 +113,7 @@ router.post("/:id?", (req, res)=>{
 
     if(req.body.name){
 	    con.query("select * from Url_token where url = ? and status =1"
-		    ,["http://192.168.2.98:3000/register_user/"+req.params.id],function(err, results){
+		    ,[server_path + "admin/register_user/"+req.params.id],function(err, results){
 			    if(err){
 				    console.log('err:' + err);
 				    res.json({
@@ -119,6 +129,8 @@ router.post("/:id?", (req, res)=>{
 		            else{
 				const username = req.body.name;
 				const token = createUuid();
+            
+
 				con.query("insert into users set ?",{
                      			username:username,
                        			token:token
@@ -129,7 +141,7 @@ router.post("/:id?", (req, res)=>{
               			});
 			        //update status = 0
 				con.query( "update Url_token set status =0 where url = ?",
-				     ["http://192.168.2.98:3000/register_user/" + req.params.id],function(err,results){
+				     [server_path + "admin/register_user/" + req.params.id],function(err,results){
 				            if(err)console.log('err:' + err);
 				             console.log("urlToken disabled.")
 			        });

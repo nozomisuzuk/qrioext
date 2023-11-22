@@ -14,6 +14,7 @@ function md5hex(str){
 }
 
 const PASSWORD = md5hex("qrioext");
+const server_path = 'http://localhost:5300/'
 
 router.get('/', (req, res)=>{
     res.render('create_url',{});
@@ -34,7 +35,7 @@ router.post("/", (req, res,next)=>{
         console.log("created url-token!!");
         const tokencook = createUuid();
         con.query("insert into Url_token set ?",{
-            url:"http://192.168.2.98:3000/register_user/" + tokencook,
+            url:server_path + "admin/register_user/" + tokencook,
         })
         res.redirect("/admin/url_token");
     }

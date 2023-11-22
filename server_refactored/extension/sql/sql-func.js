@@ -3,6 +3,8 @@ const config = require('../../config/database.config')
 const { beginTransaction, rollback, commit, query } = require('./sql-promise');
 
 
+
+
 function createUuid(){
     return 'xxxxx-xyyyxxx-4xxx-yxxxyy-xxxxxxxxxx'.replace(/[xy]/g, function(a) {
             let r = (new Date().getTime() + Math.random() * 16)%16 | 0, v = a == 'x' ? r : (r & 0x3 | 0x8);
@@ -69,7 +71,28 @@ async function queryWrapper(queryText, params = []) {
     }
 }
 
-// user,4桁のパスを入力して、insertをする、返り値はないのでbooleanで返す
+
+
+/**
+ *
+ * @param {string} username
+ * @param {string} token
+ * @returns {Promise<boolean>}
+ */
+
+exports.checkUser = async function (username, token) {
+    try {
+        const queryText = 'SELECT * FROM users WHERE username = ? AND token = ? AND status = 1 AND expiration_date > NOW()'
+        const data = await queryWrapper(queryText, [username, token])
+        return data.length > 0;
+    } catch (err) {
+        return false
+    }
+}
+
+
+
+
 
 /**
  *
