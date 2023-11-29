@@ -15,7 +15,7 @@ const { Error400Body } = require('./extension/response')
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
-const PORT = 5300;
+const PORT = 3030;
 
 
 //認証まわり
