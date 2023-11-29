@@ -89,7 +89,8 @@ router.post("/:id?", (req, res)=>{
                     //keep token in mysql
                     con.query("insert into users set ?",{
                         username:username,
-                        token:tokencook
+                        token:tokencook,
+                        expiration_date: new Date(Date.now()+(86400000)*365),
                     })
         
                     //update status = 0

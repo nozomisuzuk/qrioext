@@ -27,10 +27,10 @@ function PasswordExpirationDateFormatter(expiration_minutes) {
     return formattedDate;
 }
 
-function TokenExpirationDateFormatter() {
+function TokenExpirationDateFormatter(expiration_date = 365) {
     const now = new Date();
     //const thirtyDaysLater = new Date(now.getTime() + (30 * 86400000));
-    const tenMinutesLater = new Date(now.getTime() + (30 * 86400000));
+    const tenMinutesLater = new Date(now.getTime() + (expiration_date * 86400000));
     const formattedDate = tenMinutesLater.getFullYear() + '-' +
                         String(tenMinutesLater.getMonth() + 1).padStart(2, '0') + '-' +
                         String(tenMinutesLater.getDate()).padStart(2, '0') + ' ' +
@@ -41,13 +41,6 @@ function TokenExpirationDateFormatter() {
     return formattedDate;
 }
 
-
-function isCurrentDateBeforeExpiration(expirationDate) {
-    const mysqlDate = new Date(expirationDate);
-    const currentDate = new Date();
-
-    return currentDate < mysqlDate;
-}
 
 /**
  * queryWrapper
