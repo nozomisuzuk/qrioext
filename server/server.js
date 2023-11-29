@@ -10,7 +10,7 @@ require('date-utils')
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
-const PORT = 3030;
+const PORT = 8080;
 
 //各種ルーター
 const create_url = require('./routes/create_url');
