@@ -14,7 +14,7 @@ function md5hex(str){
 }
 
 const PASSWORD = md5hex("qrioext");
-const server_path = 'http://localhost:5300/'
+const server_path = 'http://192.168.2.98:3000/'
 
 router.get('/', (req, res)=>{
     res.render('create_url',{});
