@@ -131,6 +131,7 @@ app.get('/key_server', async function(req, res) {
             res.render("key_server",{
                 Name: "unknown"
             });
+            return;
         }
 
         res.render("key_server",{
@@ -180,7 +181,7 @@ wss.on('connection', async function(ws, req) {
                 isAuth = await checkUser(User_cookie, Token_cookie);
                 
                 if (isAuth === false) { 
-                    return Error400Body(res, 'user is not found')
+                    console.log(date() + " - terminate:" + ws.id);
                 }
 
                 WS_User = User_cookie;

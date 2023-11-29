@@ -27,10 +27,10 @@ function PasswordExpirationDateFormatter(expiration_minutes) {
     return formattedDate;
 }
 
-function TokenExpirationDateFormatter() {
+function TokenExpirationDateFormatter(expiration_date = 365) {
     const now = new Date();
     //const thirtyDaysLater = new Date(now.getTime() + (30 * 86400000));
-    const tenMinutesLater = new Date(now.getTime() + (30 * 86400000));
+    const tenMinutesLater = new Date(now.getTime() + (expiration_date * 86400000));
     const formattedDate = tenMinutesLater.getFullYear() + '-' +
                         String(tenMinutesLater.getMonth() + 1).padStart(2, '0') + '-' +
                         String(tenMinutesLater.getDate()).padStart(2, '0') + ' ' +
@@ -41,13 +41,6 @@ function TokenExpirationDateFormatter() {
     return formattedDate;
 }
 
-
-function isCurrentDateBeforeExpiration(expirationDate) {
-    const mysqlDate = new Date(expirationDate);
-    const currentDate = new Date();
-
-    return currentDate < mysqlDate;
-}
 
 /**
  * queryWrapper
@@ -73,6 +66,9 @@ async function queryWrapper(queryText, params = []) {
 
 
 
+
+
+
 /**
  *
  * @param {string} username
@@ -89,8 +85,6 @@ exports.checkUser = async function (username, token) {
         return false
     }
 }
-
-
 
 
 
@@ -260,6 +254,86 @@ exports.updateExpirationDate = async function (id, new_expiration_date) {
         return false
     }
 }
+
+
+/**
+ * @param {string} url_token
+ * @returns {Promise<boolean>}
+ */
+exports.setUrlToken = async function (url_token) {
+    try {
+        const queryText = 'insert into Url_token set url=?'
+        result = await queryWrapper(queryText, [url_token])
+        const rowsAffected = result ? result.affectedRows : 0;
+        return rowsAffected > 0;
+    } catch {
+        console.log(err)
+        return false
+    }
+}
+
+
+/**
+ * @param {string} url_token
+ * @returns {Promise<boolean>}
+ */
+
+exports.checkUrlToken = async function (url_token) {
+    try {
+        const queryText = 'select * from Url_token where url = ? and status =1'
+        const data = await queryWrapper(queryText, [url_token])
+        return data.length > 0;
+    } catch {
+        console.log(err)
+        return false
+    }
+}
+
+
+//urltokenからユーザーを作成した場合のAPI
+/**
+ * @param {string} username
+ * @param {string} token
+ * @returns {Promise<boolean>}
+ */
+
+exports.createUserFromUrlToken = async function (username, token) {
+    try {
+        const queryText = 'insert into users set username=?, token=?, expiration_date=?'
+        const tokenExpirationDate = TokenExpirationDateFormatter();
+
+        result = await queryWrapper(queryText, [username, token, tokenExpirationDate])
+        const rowsAffected = result ? result.affectedRows : 0;
+        return rowsAffected > 0;
+    } catch {
+        console.log(err)
+        return false
+    }
+}
+
+/**
+ * @param {string} url
+ * @returns {Promise<boolean>}
+ */
+
+exports.disableUrlToken = async function (url) {
+    try {
+        const queryText = 'update Url_token set status=0 where url = ?'
+        result = await queryWrapper(queryText, [url])
+        const rowsAffected = result ? result.affectedRows : 0;
+        return rowsAffected > 0;
+    } catch {
+        console.log(err)
+        return false
+    }
+}
+
+
+
+
+
+
+
 
 
 

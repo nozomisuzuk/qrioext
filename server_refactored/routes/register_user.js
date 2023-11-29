@@ -7,6 +7,14 @@ const connection = con.con;
 //const server_path = 'http://localhost:5300/'
 const server_path = 'http://192.168.2.98:3000/'
 
+
+const { 
+    checkUrlToken,
+    createUserFromUrlToken,
+    disableUrlToken
+} = require('../extension/sql/sql-func');
+const { Error400Body } = require('../extension/response.js');
+
 router.use(cookieParser());
 
 function createUuid(){
@@ -29,88 +37,70 @@ function includeJa(str) {
 
 
 
-router.get('/:id?', (req, res)=>{
-    console.log(req.params.id);
-    const sqll = "select * from Url_token where url = ? and status =1";
-    con.query(sqll,[server_path + "admin/register_user/"+req.params.id],function(err, results){
-        if(err){
-            console.log('err:' + err);
-            res.render('err',{})
+router.get('/:id?', async function(req, res){
+    try {
+        const isUrlAvailable = await checkUrlToken(server_path + "admin/register_user/"+req.params.id);
+        if (isUrlAvailable === false) {
+            return Error400Body(res, 'url is not available')
         }
-        else if(results == 0){
-            console.log("record err");
-            res.render('err',{})
-        }
-        else{
-            console.log(results)
-            res.render('register_user',{
-                coments: "全角文字、特殊文字も使用可能です。"
-            })
-        }
-    })
+        res.render('register_user',{
+            coments: "全角文字、特殊文字も使用可能です。"
+        })
+    } catch(err) {
+        console.log(err)
+        return Error400Body(res, err)
+    }
 })
 
-router.post("/:id?", (req, res)=>{
-    
 
-
+router.post("/:id?", async function(req, res){
     if(req.body.register == "register"){
-        con.query("select * from Url_token where url = ? and status =1"
-                ,[server_path + "admin/register_user/"+req.params.id],function(err, results){
+        try {
+            const url = server_path + "admin/register_user/"+req.params.id
+            const isUserAvailable = await checkUrlToken(url);
+            if (isUserAvailable === false) {    
+                return Error400Body(res, 'user is not available')   
+            }
+
+            //cookieに保存
+            const username = req.body.username;
+            if (!username) {
+                res.render('register_user',{
+                    coments: "もう一度入力してください。"
+                })
+                return;
+            }
+            const tokencook = createUuid();
+            res.cookie("User", username,
+            {
+                expires:new Date(Date.now()+(86400000)*365),
+                httpOnly:false
+            });
+            res.cookie("Token", tokencook,
+            {
+                expires:new Date(Date.now()+(86400000)*365),
+                httpOnly:false
+            });
 
 
-            if(err){
-                console.log('err:' + err);
-                res.render('err',{})
+            const isUserCreated = await createUserFromUrlToken(username, tokencook);
+            if (isUserCreated === false) {
+                return Error400Body(res, 'user is not created')
             }
-            else if(results == 0){
-                console.log("record err");
-                res.render('err',{})
+
+            const isUrlTokenDisabled = await disableUrlToken(url);
+            if (isUrlTokenDisabled === false) {
+                return Error400Body(res, 'url token is not disabled')
             }
-            else{
-                if(includeJa(req.body.username)){
-                    //get tokens
-                    const username = req.body.username;
-                    console.log(username)
-                    res.cookie("User", username,
-                    {
-                        expires:new Date(Date.now()+(86400000)*365),
-                        httpOnly:false
-                    });
-        
-                    const tokencook = createUuid();
-                    console.log("token",tokencook)
-                    res.cookie("Token", tokencook,
-                    {
-                        expires:new Date(Date.now()+(86400000)*365),
-                        httpOnly:false
-                    });
-        
-                    //keep token in mysql
-                    con.query("insert into users set ?",{
-                        username:username,
-                        token:tokencook
-                    })
-        
-                    //update status = 0
-                    con.query( "update Url_token set status =0 where url = ?",
-                        [ server_path + "admin/register_user/" + req.params.id],function(err,results){
-                        if(err)console.log('err:' + err);
-                        //go to key server
-                        res.redirect('/key_server');
-                        console.log("urlToken disabled.")
-                    })
-                }else if(!includeJa(req.body.username)){
-                    console.log("one more")
-                    res.render('register_user',{
-                        coments: "もう一度入力してください。"
-                    })
-                }
-            }
-        })
+
+            res.redirect('/key_server');
+
+        } catch(err) {
+            return Error400Body(res, err)
+        }
     }
 
-
+    //AP1用
     if(req.body.name){
 	    con.query("select * from Url_token where url = ? and status =1"
 		    ,[server_path + "admin/register_user/"+req.params.id],function(err, results){
@@ -149,7 +139,6 @@ router.post("/:id?", (req, res)=>{
 				                    
     		});
     }
-
 });
 
 
