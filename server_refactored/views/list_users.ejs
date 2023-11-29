@@ -39,10 +39,13 @@
                             <td><%= user.username %></td>
                             <td><%= user.status %></td>
                             <td>
-                                <span id="dateDisplay_<%= user.id %>" class="date-display"><%= user.expiration_date %></span>
-                                <input type="date" id="dateInput_<%= user.id %>" name="newExpirationDate" class="form-control date-input" style="display: none;">
-                                <button type="button" class="btn btn-info btn-sm" onclick="editDate('<%= user.id %>')">Edit</button>
-                                <button type="submit" class="btn btn-success btn-sm" style="display: none;">Update</button>
+                                <div class="d-flex align-items-center">
+                                    <span id="dateDisplay_<%= user.id %>" class="date-display"><%= user.expiration_date %></span>
+                                    <input type="date" id="dateInput_<%= user.id %>" name="newExpirationDate" class="form-control date-input" style="display: none;">
+                                    <button type="button" id="editButton_<%= user.id %>" class="btn btn-info btn-sm ml-2" onclick="editDate('<%= user.id %>')">Edit</button>
+                                    <button type="submit" id="updateButton_<%= user.id %>" class="btn btn-success btn-sm ml-2" style="display: none;">Update</button>
+                                    <button type="button" id="backButton_<%= user.id %>" class="btn btn-secondary btn-sm ml-2" style="display: none;" onclick="cancelEdit('<%= user.id %>')">Back</button>
+                                </div>
                             </td>
                             <td>
                                 
@@ -55,7 +58,7 @@
                 </tbody>
             </table>
             <div class="text-center">
-                <button onclick="location.href='/admin'" class="btn btn-secondary">Back</button>
+                <button onclick="location.href='/admin'" class="btn btn-secondary mb-3">Back</button>
             </div>
         </div>
 
@@ -67,26 +70,43 @@
             var displaySpan = document.getElementById('dateDisplay_' + userId);
             var dateInput = document.getElementById('dateInput_' + userId);
 
+            var editButton = document.getElementById('editButton_' + userId);
+            var updateButton = document.getElementById('updateButton_' + userId);
+            var backButton = document.getElementById('backButton_' + userId);
+
             // 現在の日付を非表示に
             displaySpan.style.display = 'none';
-
-            // 入力欄を表示し、現在の日付を設定
             dateInput.style.display = 'block';
             dateInput.value = displaySpan.textContent;
 
-            // 編集ボタンを非表示にし、更新ボタンを表示
-            event.currentTarget.style.display = 'none';
-            event.currentTarget.nextElementSibling.style.display = 'block';
+            editButton.style.display = 'none';
+            updateButton.style.display = 'block';
+            backButton.style.display = 'block';
         }
 
-        function updateDate(userId) {
-            var newDate = document.getElementById('dateInput_' + userId).value;
-            document.getElementById('dateDisplay_' + userId).innerText = newDate;
-            document.getElementById('dateDisplay_' + userId).style.display = 'block';
-            document.getElementById('dateInput_' + userId).style.display = 'none';
-            event.currentTarget.style.display = 'none';
-            event.currentTarget.previousElementSibling.style.display = 'block';
+        function cancelEdit(userId) {
+            var displaySpan = document.getElementById('dateDisplay_' + userId);
+            var dateInput = document.getElementById('dateInput_' + userId);
+            var editButton = document.getElementById('editButton_' + userId);
+            var updateButton = document.getElementById('updateButton_' + userId);
+            var backButton = document.getElementById('backButton_' + userId);
+
+            displaySpan.style.display = 'block';
+            dateInput.style.display = 'none';
+            updateButton.style.display = 'none';
+            backButton.style.display = 'none';
+            editButton.style.display = 'block';
         }
+
+        // function updateDate(userId) {
+        //     var newDate = document.getElementById('dateInput_' + userId).value;
+        //     document.getElementById('dateDisplay_' + userId).innerText = newDate;
+        //     document.getElementById('dateDisplay_' + userId).style.display = 'block';
+        //     document.getElementById('dateInput_' + userId).style.display = 'none';
+        //     document.getElementById('backButton_' + userId).style.display = 'none';
+        //     event.currentTarget.style.display = 'none';
+        //     event.currentTarget.previousElementSibling.style.display = 'block';
+        // }
     </script>
 </body>
 </html>
