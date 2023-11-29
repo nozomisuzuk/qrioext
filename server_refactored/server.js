@@ -179,9 +179,10 @@ wss.on('connection', async function(ws, req) {
 		console.log(User_cookie+":" + Token_cookie);
 
                 isAuth = await checkUser(User_cookie, Token_cookie);
-                
+                console.log(isAuth);
                 if (isAuth === false) { 
                     console.log(date() + " - terminate:" + ws.id);
+		    ws.close();
                 }
 
                 WS_User = User_cookie;
