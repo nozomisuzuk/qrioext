@@ -37,7 +37,7 @@ const register_user = require('./routes/register_user');
 const list_users = require('./routes/list_users');
 const post_json = require('./routes/post_json');
 const create_user = require('./routes/create_user');
-const e = require('express');
+//const e = require('express');
 
 var CLIENTS=[]; // クライアントのリスト
 var Name;
@@ -175,6 +175,7 @@ wss.on('connection', async function(ws, req) {
                         }
                     }
                 });
+		console.log(User_cookie+":" + Token_cookie);
 
                 isAuth = await checkUser(User_cookie, Token_cookie);
                 
@@ -241,8 +242,8 @@ wss.on('connection', async function(ws, req) {
                 console.log(client.id);
             });
         });
-    } catch (e) {
-        console.log(e)
-        return Error400Body(res, e)
+    } catch (err) {
+        console.log(err)
+        return Error400Body(res, err)
     }
 });

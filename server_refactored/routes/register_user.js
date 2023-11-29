@@ -4,8 +4,8 @@ const router = express.Router();
 const mysql = require("mysql");
 const con = require("./mysql.js")
 const connection = con.con;
-const server_path = 'http://localhost:5300/'
-//const server_path = 'http://192.168.2.98:3000'
+//const server_path = 'http://localhost:5300/'
+const server_path = 'http://192.168.2.98:3000/'
 
 router.use(cookieParser());
 
