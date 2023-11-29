@@ -177,6 +177,7 @@ wss.on('connection', async function(ws, req) {
                 });
 
                 isAuth = await checkUser(User_cookie, Token_cookie);
+                
                 if (isAuth === false) { 
                     return Error400Body(res, 'user is not found')
                 }
