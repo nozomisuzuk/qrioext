@@ -40,7 +40,7 @@ router.get('/', async function(req, res){
             users: users
         });
     } catch (err) {
-        console.log(err)
+        return Error400Body(res, err)
     }
 })
 
