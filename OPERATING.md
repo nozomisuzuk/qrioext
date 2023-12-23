@@ -1,31 +1,25 @@
-# 操作方法
-### 0.登録方法
-- SSID:ssid15 にWiFi接続
-- 送付された http://192.168.2.98:3000/admin/register_user/$UUID を叩く
-- 登録名を入力し，tokenをブラウザクッキーにて入手する
+# 管理者の操作方法
+ssid15に接続後、http://192.168.2.98:3000/admin にアクセスして以下の操作を行う
 
-### 1.開錠のやり方
-- ssid15に接続後、http://192.168.2.98:3000/key_server にアクセス
-- Qrio Key is alive!!の表示を確認
-- 円形の`Unlock`を押す
-- Unlockメーセージの数秒後、解錠される
+## 1.ユーザーの追加方法
+- ### 4桁の数字によるユーザー登録
+  - `新規ユーザーの作成`を押す
+  - Username, Password(4桁の数字), Expiration を入力し，`Create User`を押す
+  - Password(4桁の数字)を鍵の使用者に伝える
+  - 鍵の使用者が期限内にアクセスすると登録完了
+- ### （旧式）登録リンクによるユーザー登録
+  - `URLToken作成`を押す
+  - `create`を押す
+  - URL（ `http://192.168.2.98:3000/admin/register_user/$UUID` ）をコピーする
+  - 鍵の使用者にURLを伝える
+  - 鍵の使用者がアクセスすると登録完了
 
-### 2.登録用リンクの作成方法（UrlToken作成）
-- ssid15に接続後、http://192.168.2.98:3000/admin にアクセス
-- password:qrioext
-- `URLToken作成`を押す
-- `create`を押す
-- URL（ http://192.168.2.98:3000/admin/register_user/$UUID ）をコピーする
-
-### 3.ユーザーの無効化
-- ssid15に接続後、http://192.168.2.98:3000/admin
-- password:qrioext
+## 2.ユーザーの管理方法
 - `ユーザー一覧`を押す
-- `Delete`を押す
-- statusが0になれば無効化
-- `Restore`を押すとstatusが1に戻り，復元
-
-### 4.4桁の数字によるユーザー登録
-- ssid15に接続後、http://192.168.2.98:3000/admin にアクセス
-- Username, Password(4桁の数字), Expiration を入力し，`Create User`を押す
-- 端末からhttp://192.168.2.98:3000/admin/create_user に4桁の数字をPOST
+- 以下にボタンとその機能を示す
+  
+| ボタン | 機能 |
+| ---- | ---- |
+| Delete | ユーザーの鍵の使用を無効化をする。このとき，statusが0になる。 |
+| Restore | ユーザーの鍵の使用を復帰する。このとき，statusが1に戻る。 |
+| Edit | ユーザーの鍵の使用期限を編集する。この期限が切れていると，statusが1でも鍵が使用できなくなる。|
