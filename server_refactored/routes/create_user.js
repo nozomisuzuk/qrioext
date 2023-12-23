@@ -56,7 +56,7 @@ router.post('/activate', async function (req, res, next) {
             return Error400Body(res, 'user is not disabled')
         }
 
-        //return res.json({name: userInfo.username, token: userInfo.token})
+        return res.json({name: userInfo.username, token: userInfo.token})
         res.redirect('/admin/create_user?message=User activated successfully');
     } catch (e) {
         console.log(e)

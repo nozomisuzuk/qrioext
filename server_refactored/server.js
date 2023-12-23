@@ -8,9 +8,12 @@ const connection = con.con;
 require('date-utils')
 
 const {
-    checkUser
+    checkUser,
+    activateUser,
+    disablePassword
 } = require('./extension/sql/sql-func')
 const { Error400Body } = require('./extension/response')
+const { md5hex } = require('./extension/sql/crypto')
 
 const app = express();
 const server = http.createServer(app);
@@ -110,7 +113,28 @@ app.use('/admin/list_users',list_users);
 app.use('/admin/CreateUrl',create_url);
 
 
-
+//4桁のパスワードの受け取り
+app.post('/activate', async function (req, res, next) {
+	if(req.body.password){
+	    try {
+            const password = req.body.password
+            const userInfo = await activateUser(md5hex(password))
+            console.log(userInfo)
+            if (userInfo === null) {
+                return Error400Body(res, 'user is not found')
+			}
+		    const isDisabled = await disablePassword(md5hex(password))
+	        if (isDisabled === false) {
+                return Error400Body(res, 'user is not disabled')
+			}
+            return res.json({name: userInfo.username, token: userInfo.token}) 
+            //   res.redirect('/admin/create_user?message=User activated successfully');        
+        } catch (e) {
+            console.log(e)
+            return Error400Body(res, e)		    
+        }
+	}
+})
 
 //鍵開錠用のページ
 app.get('/key_server', async function(req, res) {
