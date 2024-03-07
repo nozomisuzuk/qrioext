@@ -56,10 +56,12 @@ After=syslog.target network.target
 [Service]
 User=ubuntu
 Group=ubuntu
-WorkingDirectory=/home/ubuntu/QrioKeyServer/
-ExecStart=/usr/bin/node /home/ubuntu/QrioKeyServer/server.js
+WorkingDirectory=/home/ubuntu/QrioExt/server_refactored
+ExecStart=/usr/bin/node /home/ubuntu/QrioExt/server_refactored/server.js
+StandardOutput=append:/home/ubuntu/QrioExt/server_refactored/log/access.log
+StandardError=append:/home/ubuntu/QrioExt/server_refactored/log/error.log
 KillMode=process
-Restart=alway
+Restart=always
 
 [Install]
 WantedBy=multi-user.target

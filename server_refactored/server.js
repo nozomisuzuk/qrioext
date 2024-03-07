@@ -179,8 +179,15 @@ wss.on('connection', async function(ws, req) {
             CLIENTS.push(ws);
             ws.send("websocket_connext");
             console.log(date() + ' - 新しいクライアント::' + ws.id + " len=" + CLIENTS.length);
-        } else {
+        } else if(ws._socket.remoteAddress == "192.168.2.239"){
+            WS_User = "esp32button1";
+            ws.id = WS_User;
+            CLIENTS.push(ws);
+            ws.send("websocket_connext");
+            console.log(date() + ' - 新しいクライアント::' + ws.id + " len=" + CLIENTS.length);
+        }else {
             if(!req.headers.cookie){
+                //cookieがないユーザーのwebsocketを切断
                 ws.send("Bye");
                 ws.close();
             }else{
@@ -204,9 +211,10 @@ wss.on('connection', async function(ws, req) {
 
                 isAuth = await checkUser(User_cookie, Token_cookie);
                 console.log(isAuth);
+                //データベースに登録されていないユーザーのwebsocketを切断
                 if (isAuth === false) { 
                     console.log(date() + " - terminate:" + ws.id);
-		    ws.close();
+		            ws.close();
                 }
 
                 WS_User = User_cookie;
