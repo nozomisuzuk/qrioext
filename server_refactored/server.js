@@ -32,7 +32,6 @@ app.use(session({
 
 
 
-
 //各種ルーター
 const create_url = require('./routes/create_url');
 const url_token = require('./routes/url_token');
@@ -43,11 +42,6 @@ const create_user = require('./routes/create_user');
 //const e = require('express');
 
 var CLIENTS=[]; // クライアントのリスト
-var Name;
-var Token;
-var User_cookie;
-var Token_cookie;
-var WS_User = 0;
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
@@ -70,12 +64,6 @@ function date(){
 
     return formatted
 }
-
-
-
-
-
-
 
 
 //管理者ページ
@@ -139,28 +127,38 @@ app.post('/activate', async function (req, res, next) {
 //鍵開錠用のページ
 app.get('/key_server', async function(req, res) {
     try {
-        if(req.cookies){
+        var Name;
+        var Token;
+        if(req.cookies.User){
             Name = req.cookies.User;
             Token = req.cookies.Token;
         }else{
-            Name = 0;
-            Token = 0;
+            Name = "null";
+            Token = "null";
         }
-
-        console.log("Name:" + Name);
-        console.log("Token:" + Token);
     
         const isAuth = await checkUser(Name, Token);
         if (isAuth === false) {
-            res.render("key_server",{
-                Name: "unknown"
-            });
-            return;
+            if(Name == "null"){
+                res.render("key_server",{
+                    Name: "No Token"
+                });
+                console.log(date() + " - ブラウザ版にトークンを所持していないユーザーがアクセスしました");
+                return;
+            }else{
+                res.render("key_server",{
+                    Name: "expired"
+                });
+                console.log(date() + " - ブラウザ版に期限切れのユーザー:" + Name+ "がアクセスしました");
+                return;
+            }
+            
         }
 
         res.render("key_server",{
             Name: Name
         });
+        console.log(date() + " - ブラウザ版に" + Name+ "がアクセスしました");
     } catch (e) {   
         return Error400Body(res, e)
     }
@@ -170,18 +168,18 @@ app.get('/key_server', async function(req, res) {
 // //websocket server
 wss.on('connection', async function(ws, req) {
     try {
+        var User_cookie;
+        var Token_cookie;
         console.log(date() + " - " + ws._socket.remoteAddress);
         ws.on('error', console.log);   
 
         if(ws._socket.remoteAddress == "192.168.2.97"){
-            WS_User = "esp32";
-            ws.id = WS_User;
+            ws.id = "esp32";
             CLIENTS.push(ws);
             ws.send("websocket_connext");
             console.log(date() + ' - 新しいクライアント::' + ws.id + " len=" + CLIENTS.length);
         } else if(ws._socket.remoteAddress == "192.168.2.239"){
-            WS_User = "esp32button1";
-            ws.id = WS_User;
+            ws.id = "esp32button1";
             CLIENTS.push(ws);
             ws.send("websocket_connext");
             console.log(date() + ' - 新しいクライアント::' + ws.id + " len=" + CLIENTS.length);
@@ -207,21 +205,22 @@ wss.on('connection', async function(ws, req) {
                         }
                     }
                 });
-		console.log(User_cookie+":" + Token_cookie);
+		console.log("Name:"+User_cookie+" - Token:" + Token_cookie);
 
                 isAuth = await checkUser(User_cookie, Token_cookie);
                 console.log(isAuth);
                 //データベースに登録されていないユーザーのwebsocketを切断
                 if (isAuth === false) { 
-                    console.log(date() + " - terminate:" + ws.id);
+                    console.log(date() + " - 期限切れ,または未登録のアクセスをterminate:" + User_cookie);
 		            ws.close();
                 }
 
-                WS_User = User_cookie;
-                ws.id = WS_User;
+                ws.id = User_cookie;
                 CLIENTS.push(ws);
                 ws.send("websocket_connect");
                 console.log(date() + ' - 新しいクライアント::' + ws.id + " len=" + CLIENTS.length);
+                User_cookie = "null";
+                Token_cookie = "null";
             }
         }
 
@@ -231,7 +230,7 @@ wss.on('connection', async function(ws, req) {
                 if(ws.id == "esp32"){
                     clearTimeout(this.pingTimeout);
                     this.pingTimeout = setTimeout(() => {
-                        console.log(date() + " - terminate:" + ws.id);
+                        console.log(date() + " - terminate by message ping-pong:" + ws.id);
                         ws.close();
                         CLIENTS = CLIENTS.filter(function (conn) {
                             return (conn == ws) ? false : true;
@@ -240,7 +239,7 @@ wss.on('connection', async function(ws, req) {
                 } else {
                     clearTimeout(this.pingClientTimeout);
                     this.pingClientTimeout = setTimeout(() => {
-                        console.log(date() + " - terminate:" + ws.id);
+                        console.log(date() + " - terminate by message ping-pong:" + ws.id);
                         ws.close();
                     }, 1000 + 1000);
                 }
@@ -258,7 +257,7 @@ wss.on('connection', async function(ws, req) {
         ws.on('ping', function(){
             clearTimeout(this.pingClientTimeout);
                 this.pingClientTimeout = setTimeout(() => {
-                    console.log(date() + " - terminate ping pong:" + ws.id);
+                    console.log(date() + " - terminate by ping-pong:" + ws.id);
                     ws.close();
             }, 5000 + 1000);
         });
@@ -267,7 +266,7 @@ wss.on('connection', async function(ws, req) {
         ws.on('close', function () {
             CLIENTS = CLIENTS.filter(function (conn) {
             if(conn === ws){
-                    console.log(date() + ' - ユーザー：' + conn.id + ' がブラウザを閉じました');
+                    console.log(date() + ' - ユーザー：' + conn.id + ' のwsが切断されました');
             }
             return (conn === ws) ? false : true;
             });
