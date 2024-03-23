@@ -9,6 +9,10 @@
         .container {
             padding-top: 20px;
         }
+
+        hr{
+            height: 30px;
+        }
     </style>
     <script>
         window.onload = function() {
@@ -43,7 +47,36 @@
             <button type="submit" class="btn btn-primary">Invite User</button>
         </form>
 
-        <h1>/activate</h1>
+        <p>
+            <div>
+            <h2>Invited Users</h2>
+              <table class="table table-bordered table-striped mt-4">
+                <thead>
+                  <tr>
+                    <th>name</th>
+                    <th>expiration date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% users.forEach((user)=>{ %>
+                  <tr>
+                    <td><%= user.username %></td>
+                    <td><%= user.expiration_date %></td>
+                  </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          </p>
+
+          <button onclick="location.href='/admin'" class="btn btn-secondary">戻る</button>
+
+
+        <hr>
+
+        <h2>For Debugging</h2>
+
+        <h3>/activate</h3>
         <form method="POST" action="/admin/create_user/activate" class="mb-4">
             <div class="form-group">
                 <label for="password">Password:</label>
@@ -52,32 +85,8 @@
             <button type="submit" class="btn btn-primary">Activate User</button>
         </form>
 
-        <p>
-          <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-          招待済みのユーザー
-          </button>
 
-          <div class="collapse" id="collapseExample">
-            <table class="table table-bordered table-striped mt-4">
-              <thead>
-                <tr>
-                  <th>name</th>
-                  <th>expiration date</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% users.forEach((user)=>{ %>
-                <tr>
-                  <td><%= user.username %></td>
-                  <td><%= user.expiration_date %></td>
-                </tr>
-                <% }); %>
-              </tbody>
-            </table>
-          </div>
-        </p>
 
-        <button onclick="location.href='/admin'" class="btn btn-secondary">戻る</button>
         
     </div>
 

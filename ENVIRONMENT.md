@@ -7,17 +7,14 @@
 ### 1.前提パッケージのインストール
 ```bash
 $ sudo apt update && sudo apt upgrade -y
-$ sudo apt install npm
-$ sudo apt install node
-$ sudo apt install nginx
-$ sudo apt install mysql-server
+$ sudo apt install npm nginx mysql-server ufw -y
+$ sudo ufw allow http && sudo ufw allow 3000
 $ sudo ufw enable
-$ sudo ufw allow http && sudo ufw allow 3000 
 ```
 
 ### 2.プログラムのインストール
 ```bash
-#Personal access tokenを利用してのcloneを推奨
+#Personal access tokenまたはsshを利用してのcloneを推奨
 $ git clone https://github.com/bmcomp0/QrioExt.git
 $ cd QrioExt/server_refactored
 #node.jsのパッケージのインストール
@@ -38,14 +35,15 @@ create table password_auth(id int auto_increment, username text not null, passwo
 ```
 
 ### 4.mysql タイムアウト設定
-- /ect/mysql/my.cnf
-```:/ect/mysql/my.cnf
+- /etc/mysql/my.cnf
+```:/etc/mysql/my.cnf
 [mysqld]
 wait_timeout = 31536000
 interactive_timeout = 31536000
 ```
 #### 設定の確認
 ```bash
+$ sudo systemctl restart mysql
 $ sudo mysql
 show global variables like"%timeout%";
 ```
@@ -76,6 +74,8 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 ```
+
+#### 自動起動・開始
 
 ```bash
 $ systemctl enable bmc_lock.service
