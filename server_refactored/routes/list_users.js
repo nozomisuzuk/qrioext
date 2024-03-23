@@ -6,6 +6,7 @@ const mysql = require("mysql");
 const con = require("./mysql.js")
 const connection = con.con;
 const {
+    getValidUsers,
     getAllUsers,
     deleteUser,
     restoreUser,
@@ -32,11 +33,25 @@ const PASSWORD = md5hex("qrioext");
 
 router.get('/', async function(req, res){
     try {
-        const users = await getAllUsers()
+        const users = await getValidUsers()
         users.forEach(user => {
             user.expiration_date = formatDate(user.expiration_date);
         });
         res.render("list_users",{
+            users: users
+        });
+    } catch (err) {
+        return Error400Body(res, err)
+    }
+})
+
+router.get('/allusers', async function(req, res){
+    try {
+        const users = await getAllUsers()
+        users.forEach(user => {
+            user.expiration_date = formatDate(user.expiration_date);
+        });
+        res.render("list_allusers",{
             users: users
         });
     } catch (err) {
@@ -52,7 +67,7 @@ router.get("/delete/:id?",async function(req, res, next){
             return Error400Body(res, 'user is not deleted')
         }
 
-        const users = await getAllUsers();
+        const users = await getValidUsers();
         users.forEach(user => {
             user.expiration_date = formatDate(user.expiration_date);
         });
@@ -64,7 +79,26 @@ router.get("/delete/:id?",async function(req, res, next){
     }
 })
 
-router.get("/restore/:id?",async function(req, res, next){
+router.get("/allusers/delete/:id?",async function(req, res, next){
+    try {
+        const isDeleted = await deleteUser(req.params.id);
+        if (isDeleted === false) {
+            return Error400Body(res, 'user is not deleted')
+        }
+
+        const users = await getAllUsers();
+        users.forEach(user => {
+            user.expiration_date = formatDate(user.expiration_date);
+        });
+        res.render("list_allusers",{
+            users: users
+        });
+    } catch (err) {
+        return Error400Body(res, err)
+    }
+})
+
+router.get("/allusers/restore/:id?",async function(req, res, next){
     try {
         const isDeleted = await restoreUser(req.params.id);
         if (isDeleted === false) {
@@ -75,7 +109,7 @@ router.get("/restore/:id?",async function(req, res, next){
         users.forEach(user => {
             user.expiration_date = formatDate(user.expiration_date);
         });
-        res.render("list_users",{
+        res.render("list_allusers",{
             users: users
         });
     } catch (err) {
@@ -99,11 +133,40 @@ router.post("/update_expiration/:id?",async function(req, res, next){
             return Error400Body(res, 'user is not updated')
         }
 
-        const users = await getAllUsers();
+        const users = await getValidUsers();
         users.forEach(user => {
             user.expiration_date = formatDate(user.expiration_date);
         });
         res.render("list_users",{
+            users: users
+        });
+    } catch (err) {
+        return Error400Body(res, err)
+    }
+})
+
+module.exports = router;
+
+router.post("/allusers/update_expiration/:id?",async function(req, res, next){
+    //id, expiration_dateを受け取る
+    try {
+        const expiration_date = `${req.body.newExpirationDate} 23:59:59`
+        
+        const isUpdated = await updateExpirationDate(req.params.id, expiration_date);
+        if (isUpdated === false) {
+            return Error400Body(res, 'expiration_date is not updated')
+        }
+
+        const rowsAffected = result ? result.affectedRows : 0;
+        if (rowsAffected === 0) {
+            return Error400Body(res, 'user is not updated')
+        }
+
+        const users = await getAllUsers();
+        users.forEach(user => {
+            user.expiration_date = formatDate(user.expiration_date);
+        });
+        res.render("list_allusers",{
             users: users
         });
     } catch (err) {

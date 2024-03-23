@@ -1,7 +1,8 @@
 const express = require('express')
 const { Error400Body } = require('../extension/response')
 const {
-    createUser, 
+    getInvitedUsers,
+    createUser,
     activateUser,
     disablePassword,
     checkUsablePassword
@@ -9,15 +10,32 @@ const {
 const { md5hex } = require('../extension/sql/crypto')
 const router = express.Router()
 
+function formatDate(datetime) {
+    var date = new Date(datetime);
+    var year = date.getFullYear();
+    var month = ('0' + (date.getMonth() + 1)).slice(-2);
+    var day = ('0' + date.getDate()).slice(-2);
+    var hours = ('0' + date.getHours()).slice(-2);
+    var minutes = ('0' + date.getMinutes()).slice(-2);
+    var seconds = ('0' + date.getSeconds()).slice(-2);
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
 
 
-router.get('/', function(req, res, next) {
-    const message = req.query.message;
-
-    // メッセージがある場合はそれを使用し、ない場合は空のオブジェクトを渡す
-    res.render('create_user', { message: message || '' });
+router.get('/', async function(req, res, next) {
+    try {
+        const message = req.query.message;
+        const users = await getInvitedUsers()
+        users.forEach(user => {
+            user.expiration_date = formatDate(user.expiration_date);
+        });
+        // メッセージがある場合はそれを使用し、ない場合は空のオブジェクトを渡す
+        res.render('create_user', { message: message || '' , users:users});
+    } catch (err) {
+        return Error400Body(res, err)
+    }
 });
-
 
 
 //admin側(webアプリ用)

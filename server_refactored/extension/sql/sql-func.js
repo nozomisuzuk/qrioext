@@ -196,10 +196,30 @@ exports.checkUsablePassword = async function (password) {
 /**
  * @returns {Promise<Array<User>> | undefined}
  */
+exports.getInvitedUsers = async function () {
+    try {
+        const queryText = 'select * from password_auth WHERE status = 1 AND expiration_date > NOW()'
+        const data = await queryWrapper(queryText)
+        return data
+    } catch (err) {
+        console.log(err)
+        return null
+    }
+}
 
 exports.getAllUsers = async function () {
     try {
-        const queryText = 'select * from users order by status DESC, id DESC'
+        const queryText = 'select * from users order by id DESC'
+        const data = await queryWrapper(queryText)
+        return data
+    } catch (err) {
+        console.log(err)
+        return null
+    }
+}
+exports.getValidUsers = async function () {
+    try {
+        const queryText = 'select * from users where status = 1 order by id DESC '
         const data = await queryWrapper(queryText)
         return data
     } catch (err) {
