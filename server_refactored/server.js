@@ -18,7 +18,7 @@ const { md5hex } = require('./extension/sql/crypto')
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
-const PORT = 3030;
+const PORT = 3000;
 
 
 //認証まわり

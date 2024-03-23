@@ -1,53 +1,63 @@
 # 環境構築　
-### 0.前提
+### 0.前提環境
 - OS : Ubuntu20.04LST Desktop
 - OS : Ubuntu22.10LST Desktop
 
-### 1.必要なインストール
-- $ sudo apt update
-- $ sudo apt install npm
-- $ sudo apt install node
-- $ sudo apt install nginx
-- $ sudo apt install mysql-server
-- $ sudo ufw enable
-- $ sudo ufw allow http | sudo ufw allow 3000 
+[](3000番のポートを開放しているのにserver.js内では3030番を指定している)
+### 1.前提パッケージのインストール
+```bash
+$ sudo apt update && sudo apt upgrade -y
+$ sudo apt install npm
+$ sudo apt install node
+$ sudo apt install nginx
+$ sudo apt install mysql-server
+$ sudo ufw enable
+$ sudo ufw allow http && sudo ufw allow 3000 
+```
 
-### 2.npm (nodejsに必要なインストール)
-- $ mkdir ~/QrioKeyServer | cd QrioKeyServer
-- $ sudo npm init
-- $ npm i express
-- $ npm i ws
-- $ npm i ejs
-- $ npm i cookie-parser
-- $ npm i crypto
-- $ npm i mysql
-- $ npm i date-utils
+### 2.プログラムのインストール
+```bash
+#Personal access tokenを利用してのcloneを推奨
+$ git clone https://github.com/bmcomp0/QrioExt.git
+$ cd QrioExt/server_refactored
+#node.jsのパッケージのインストール
+$ npm ci
+```
 
-### 3.mysql settings
-- $ sudo mysql
-- CREATE USER 'keyserver'@"localhost" IDENTIFIED BY 'password';
-- GRANT ALL ON *.* TO "keyserver"@"localhost"; 
-- ALTER USER 'keyserver'@'localhost' IDENTIFIED WITH mysql_native_password BY '23Y04M20D';
-- create database workspace;
-- use workspace;
-- create table users(id int auto_increment, username text not null, token text not null, status int default 1, expiration_date datetime not null, primary key(id));
-- create table Url_token(id int auto_increment, url text not null, status int default 1, primary key(id));
-- create table password_auth(id int auto_increment, username text not null, password text not null, status int default 1, expiration_date datetime not null, primary key(id));
+### 3.mysqlの設定
+```sql
+$ sudo mysql
+CREATE USER 'keyserver'@"localhost" IDENTIFIED BY 'password';
+GRANT ALL ON *.* TO "keyserver"@"localhost"; 
+ALTER USER 'keyserver'@'localhost' IDENTIFIED WITH mysql_native_password BY '23Y04M20D';
+create database workspace;
+use workspace;
+create table users(id int auto_increment, username text not null, token text not null, status int default 1, expiration_date datetime not null, primary key(id));
+create table Url_token(id int auto_increment, url text not null, status int default 1, primary key(id));
+create table password_auth(id int auto_increment, username text not null, password text not null, status int default 1, expiration_date datetime not null, primary key(id));
+```
 
 ### 4.mysql タイムアウト設定
-- sudo vi /ect/mysql/my.cnf
-- ```
-  [mysqld]
-  wait_timeout = 31536000
-  interactive_timeout = 31536000
-  ```
-- :wq
+- /ect/mysql/my.cnf
+```:/ect/mysql/my.cnf
+[mysqld]
+wait_timeout = 31536000
+interactive_timeout = 31536000
+```
 #### 設定の確認
-- sudo mysql
-- show global variables like"%timeout%";
-
+```bash
+$ sudo mysql
+show global variables like"%timeout%";
+```
+以下のようになっていれば正常に反映されている
+```
+wait_timeout = 31536000
+interactive_timeout = 31536000
+```
+[](作業ディレクトリを~/QrioKeyServerとしてるのにWorkingDirectoryで別の場所を指定しているので、作業ディレクトリを~/QrioExtとする)
 ### 5.serverの自動起動設定（systemd）
-- sudo vi /etc/systemd/system/bmc_lock.service
+想定ユーザー,グループ名はubuntu
+- /etc/systemd/system/bmc_lock.service
 ```
 [Unit]
 Description=Server operating qrio key
@@ -66,7 +76,18 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 ```
-- systemctl enable bmc_lock.service
-- systemctl start bmc_lock.service
+
+```bash
+$ systemctl enable bmc_lock.service
+$ systemctl start bmc_lock.service
+```
 #### 終了方法
-- systemctl stop bmc_lock.service
+```bash
+$ systemctl stop bmc_lock.service
+```
+#### 自動起動の無効化
+```bash
+$ systemctl disable bmc_lock.service
+```
+
+

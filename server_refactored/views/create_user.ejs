@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>create_user</title>
+    <title>Invite_user</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .container {
@@ -26,7 +26,7 @@
         <% if (message) { %>
             <div id="successMessage" class="alert alert-success"><%= message %></div>
         <% } %>
-        <h1>Create New User</h1>
+        <h1>Invite New User</h1>
         <form method="POST" action="/admin/create_user/create" class="mb-4">
             <div class="form-group">
                 <label for="name">Username:</label>
@@ -40,7 +40,7 @@
                 <label for="expiration">Expiration(minutes):</label>
                 <input type="number" id="expiration" name="expiration" class="form-control" min="1" value="10" title="Please enter minutes." required>
             </div>
-            <button type="submit" class="btn btn-primary">Create User</button>
+            <button type="submit" class="btn btn-primary">Invite User</button>
         </form>
 
         <h1>/activate</h1>
@@ -52,11 +52,41 @@
             <button type="submit" class="btn btn-primary">Activate User</button>
         </form>
 
+        <p>
+          <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+          招待済みのユーザー
+          </button>
+
+          <div class="collapse" id="collapseExample">
+            <table class="table table-bordered table-striped mt-4">
+              <thead>
+                <tr>
+                  <th>name</th>
+                  <th>expiration date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% users.forEach((user)=>{ %>
+                <tr>
+                  <td><%= user.username %></td>
+                  <td><%= user.expiration_date %></td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </p>
+
         <button onclick="location.href='/admin'" class="btn btn-secondary">戻る</button>
+        
     </div>
+
+
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    
 </body>
 </html>
