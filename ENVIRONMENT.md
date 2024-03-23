@@ -54,6 +54,15 @@ interactive_timeout = 31536000
 ```
 [](作業ディレクトリを~/QrioKeyServerとしてるのにWorkingDirectoryで別の場所を指定しているので、作業ディレクトリを~/QrioExtとする)
 ### 5.serverの自動起動設定（systemd）
+
+#### ログファイルの作成
+```
+mkdir ~/QrioExt/server_refactored/log
+touch ~/QrioExt/server_refactored/log/access.log
+touch ~/QrioExt/server_refactored/log/error.log
+```
+
+#### serviceの追加
 想定ユーザー,グループ名はubuntu
 - /etc/systemd/system/bmc_lock.service
 ```
@@ -74,6 +83,7 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 ```
+
 
 #### 自動起動・開始
 
